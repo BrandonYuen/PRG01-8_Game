@@ -1,0 +1,41 @@
+{
+	"name": "prg01-8_game",
+	"version": "1.0.0",
+	"description": "A typescript game for a school project. (Year2 - Q4)",
+	"main": "app.js",
+	"scripts": {
+		"dev": "concurrently --kill-others \"npm run watch\" \"node app.js\"",
+		"watch": "webpack --watch --config webpack.config.js --mode development",
+		"build": "webpack --config webpack.config.js --mode produdction"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/BrandonYuen/PRG01-8_Game.git"
+	},
+	"keywords": [
+		"typescript",
+		"game",
+		"school",
+		"project",
+		"javascript",
+		"node"
+	],
+	"author": "Brandon Yuen",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/BrandonYuen/PRG01-8_Game/issues"
+	},
+	"homepage": "https://github.com/BrandonYuen/PRG01-8_Game#readme",
+	"dependencies": {
+		"express": "^4.16.3",
+		"module-alias": "^2.0.6"
+	},
+	"devDependencies": {
+		"concurrently": "^3.5.1",
+		"typescript": "^2.8.3"
+	},
+	"_moduleAliases": {
+		"@root": ".",
+		"@application": "./application"
+	}
+}
