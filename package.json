@@ -27,11 +27,14 @@
 	},
 	"homepage": "https://github.com/BrandonYuen/PRG01-8_Game#readme",
 	"dependencies": {
+		"body-parser": "^1.18.3",
 		"express": "^4.16.3",
 		"module-alias": "^2.0.6"
 	},
 	"devDependencies": {
 		"concurrently": "^3.5.1",
+		"pixi.js": "^4.8.0",
+		"@types/pixi.js": "^4.7.3",
 		"typescript": "^2.8.3"
 	},
 	"_moduleAliases": {

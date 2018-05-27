@@ -6,9 +6,12 @@
         "noUnusedLocals":true,
         "noUnusedParameters":true,
         "sourceMap": true,
-        "outFile": "dist/js/bundle.js"
+        "outFile": "./dist/js/bundle.js"
     },
     "include": [
         "src/**/*"
+    ],
+    "files": [
+        "./src/game.ts"
     ]
 }
