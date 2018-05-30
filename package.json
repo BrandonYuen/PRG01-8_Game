@@ -29,12 +29,14 @@
 	"dependencies": {
 		"body-parser": "^1.18.3",
 		"express": "^4.16.3",
-		"module-alias": "^2.0.6"
+		"module-alias": "^2.0.6",
+		"pixi-particles": "^3.0.0"
 	},
 	"devDependencies": {
+		"@types/node": "^10.1.4",
+		"@types/pixi.js": "^4.7.3",
 		"concurrently": "^3.5.1",
 		"pixi.js": "^4.8.0",
-		"@types/pixi.js": "^4.7.3",
 		"typescript": "^2.8.3"
 	},
 	"_moduleAliases": {
