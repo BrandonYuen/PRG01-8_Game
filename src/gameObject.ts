@@ -9,4 +9,6 @@ class GameObject {
 	public updateTexture(texture: any): void {
 		this.sprite.texture = texture;
 	}
+
+	public update(): void {}
 }

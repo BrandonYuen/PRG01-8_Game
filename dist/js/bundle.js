@@ -12,19 +12,24 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
-        this.background = new PIXI.Sprite();
+        this.objects = [];
         Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeigth });
         Game.PIXI.stage.interactive = true;
         document.body.appendChild(Game.PIXI.view);
-        Game.bullets = [];
-        Game.PIXI.stage.addChild(this.background);
+        this.background = new GameObject(Game.PIXI.stage);
         this.player = new Player(Game.PIXI.stage);
+        this.objects.push(this.background, this.player);
         Game.PIXI.loader
             .add('./images/level/level1.png')
             .add('./images/player/manBlue_gun.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
-            .load(function () { return _this.setup(); });
+            .load(function () { return _this.onLoaderComplete(); });
+        Game.sounds.pistol1 = new Howl({
+            src: ['./sounds/pistolShot1.mp3'],
+            volume: 0.5,
+            preload: true
+        });
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -32,29 +37,69 @@ var Game = (function () {
         }
         return Game.instance;
     };
-    Game.prototype.setup = function () {
+    Game.prototype.onLoaderComplete = function () {
         var _this = this;
-        this.background.texture = Game.PIXI.loader.resources["./images/level/level1.png"].texture;
+        this.background.updateTexture(Game.PIXI.loader.resources["./images/level/level1.png"].texture);
         this.player.updateTexture(Game.PIXI.loader.resources['./images/player/manBlue_gun.png'].texture);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.player.update();
-        for (var b = Game.bullets.length - 1; b >= 0; b--) {
-            Game.bullets[b].position.x += Math.cos(Game.bullets[b].rotation) * 20;
-            Game.bullets[b].position.y += Math.sin(Game.bullets[b].rotation) * 20;
+        for (var _i = 0, _a = this.objects; _i < _a.length; _i++) {
+            var o = _a[_i];
+            o.update();
+        }
+        for (var _b = 0, _c = Game.bullets; _b < _c.length; _b++) {
+            var b = _c[_b];
+            b.update();
         }
         Game.PIXI.renderer.render(Game.PIXI.stage);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
+    Game.removeBullet = function (b) {
+        Game.PIXI.stage.removeChild(b);
+        var index = Game.bullets.indexOf(b);
+        if (index !== -1) {
+            Game.bullets.splice(index, 1);
+        }
+    };
     Game.canvasWidth = 1280;
     Game.canvasHeigth = 768;
+    Game.bullets = [];
+    Game.sounds = {};
     return Game;
 }());
 window.addEventListener("load", function () {
     Game.getInstance();
 });
+var Bullet = (function (_super) {
+    __extends(Bullet, _super);
+    function Bullet(gunShotContainer, attributes) {
+        var _this = _super.call(this) || this;
+        _this.speed = 1;
+        _this.maxLifetime = 150;
+        _this.lifeTime = 0;
+        _this.beginFill(0x123456);
+        _this.drawRect(0, 0, 10, 3);
+        _this.endFill();
+        _this.position.x = gunShotContainer.x;
+        _this.position.y = gunShotContainer.y;
+        _this.rotation = attributes.rotation;
+        _this.speed = attributes.speed;
+        Game.PIXI.stage.addChild(_this);
+        Game.bullets.push(_this);
+        return _this;
+    }
+    Bullet.prototype.update = function () {
+        this.position.x += Math.cos(this.rotation) * this.speed;
+        this.position.y += Math.sin(this.rotation) * this.speed;
+        this.lifeTime++;
+        if (this.lifeTime > this.maxLifetime) {
+            Game.removeBullet(this);
+        }
+    };
+    return Bullet;
+}(PIXI.Graphics));
 var GameObject = (function () {
     function GameObject(stage) {
         this.sprite = new PIXI.Sprite();
@@ -63,61 +108,13 @@ var GameObject = (function () {
     GameObject.prototype.updateTexture = function (texture) {
         this.sprite.texture = texture;
     };
+    GameObject.prototype.update = function () { };
     return GameObject;
 }());
 var gunShotEmitter = (function (_super) {
     __extends(gunShotEmitter, _super);
-    function gunShotEmitter(container, particleTextures, config) {
-        var _this = _super.call(this, container, particleTextures, config) || this;
-        _this.elapsed = Date.now();
-        _this.emit = false;
-        return _this;
-    }
-    gunShotEmitter.prototype.start = function (time) {
-        var _this = this;
-        this.emit = true;
-        setTimeout(function () {
-            _this.emit = false;
-        }, time);
-    };
-    gunShotEmitter.prototype.update = function () {
-        var now = Date.now();
-        _super.prototype.update.call(this, (now - this.elapsed) * 0.001);
-        this.elapsed = Date.now();
-    };
-    return gunShotEmitter;
-}(PIXI.particles.Emitter));
-var Player = (function (_super) {
-    __extends(Player, _super);
-    function Player(stage) {
-        var _this = _super.call(this, stage) || this;
-        _this.left = false;
-        _this.right = false;
-        _this.up = false;
-        _this.down = false;
-        _this.x_speed = 0;
-        _this.y_speed = 0;
-        _this.gunShotContainer = new PIXI.Container;
-        _this.gunOffset = {
-            angle: 19.20,
-            distance: 27
-        };
-        window.addEventListener("keydown", function (e) { return _this.keyListener(e); });
-        window.addEventListener("keyup", function (e) { return _this.keyListener(e); });
-        Game.PIXI.stage.on("mousedown", function () { return _this.shoot(); });
-        _this.resetPosition();
-        Game.PIXI.stage.addChild(_this.gunShotContainer);
-        return _this;
-    }
-    Player.prototype.resetPosition = function () {
-        this.sprite.x = Game.canvasWidth / 2;
-        this.sprite.y = Game.canvasHeigth / 2;
-        this.sprite.anchor.x = 0.5;
-        this.sprite.anchor.y = 0.5;
-    };
-    Player.prototype.updateTexture = function (texture) {
-        _super.prototype.updateTexture.call(this, texture);
-        this.gunShotEmitter = new gunShotEmitter(this.gunShotContainer, [
+    function gunShotEmitter(container) {
+        var _this = _super.call(this, container, [
             Game.PIXI.loader.resources['./images/particles/particle.png'].texture,
             Game.PIXI.loader.resources['./images/particles/Fire.png'].texture
         ], {
@@ -172,13 +169,59 @@ var Player = (function (_super) {
                 y: 0,
                 r: 0.01
             }
-        });
+        }) || this;
+        _this.elapsed = Date.now();
+        _this.emit = false;
+        return _this;
+    }
+    gunShotEmitter.prototype.start = function (time) {
+        var _this = this;
+        this.emit = true;
+        setTimeout(function () {
+            _this.emit = false;
+        }, time);
+    };
+    gunShotEmitter.prototype.update = function () {
+        var now = Date.now();
+        _super.prototype.update.call(this, (now - this.elapsed) * 0.001);
+        this.elapsed = Date.now();
+    };
+    return gunShotEmitter;
+}(PIXI.particles.Emitter));
+var Player = (function (_super) {
+    __extends(Player, _super);
+    function Player(stage) {
+        var _this = _super.call(this, stage) || this;
+        _this.left = false;
+        _this.right = false;
+        _this.up = false;
+        _this.down = false;
+        _this.x_speed = 0;
+        _this.y_speed = 0;
+        _this.gunShotContainer = new PIXI.Container;
+        _this.gunOffset = {
+            angle: 19.20,
+            distance: 27
+        };
+        _this.speed = 0.25;
+        window.addEventListener("keydown", function (e) { return _this.keyListener(e); });
+        window.addEventListener("keyup", function (e) { return _this.keyListener(e); });
+        Game.PIXI.stage.on("mousedown", function () { return _this.shoot(); });
+        _this.resetPosition();
+        Game.PIXI.stage.addChild(_this.gunShotContainer);
+        return _this;
+    }
+    Player.prototype.resetPosition = function () {
+        this.sprite.x = Game.canvasWidth / 2;
+        this.sprite.y = Game.canvasHeigth / 2;
+        this.sprite.anchor.x = 0.5;
+        this.sprite.anchor.y = 0.5;
+    };
+    Player.prototype.updateTexture = function (texture) {
+        _super.prototype.updateTexture.call(this, texture);
+        this.gunShotEmitter = new gunShotEmitter(this.gunShotContainer);
     };
     Player.prototype.update = function () {
-        var offset = {
-            x: 20,
-            y: 20
-        };
         this.gunShotContainer.x = this.sprite.x + Math.cos(this.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance;
         this.gunShotContainer.y = this.sprite.y + Math.sin(this.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance;
         this.gunShotContainer.rotation = this.sprite.rotation - 30;
@@ -188,16 +231,12 @@ var Player = (function (_super) {
     };
     Player.prototype.shoot = function () {
         var rotation = Util.rotateToPoint(Game.PIXI.renderer.plugins.interaction.mouse.global.x, Game.PIXI.renderer.plugins.interaction.mouse.global.y, this.gunShotContainer.x, this.gunShotContainer.y);
-        var bullet = new PIXI.Graphics();
-        bullet.beginFill(0x123456);
-        bullet.drawRect(0, 0, 20, 5);
-        bullet.endFill();
-        bullet.position.x = this.gunShotContainer.x;
-        bullet.position.y = this.gunShotContainer.y;
-        bullet.rotation = rotation;
-        Game.PIXI.stage.addChild(bullet);
-        Game.bullets.push(bullet);
+        new Bullet(this.gunShotContainer, {
+            rotation: rotation,
+            speed: 30
+        });
         this.gunShotEmitter.start(100);
+        Game.sounds.pistol1.play();
     };
     Player.prototype.keyListener = function (event) {
         var key_state = (event.type == "keydown") ? true : false;
@@ -217,17 +256,22 @@ var Player = (function (_super) {
         }
     };
     Player.prototype.updateMovement = function () {
+        var actualSpeed = this.speed;
+        if ((this.right && this.down) || (this.right && this.up) || (this.left && this.down) || (this.left && this.up)) {
+            actualSpeed = actualSpeed * 0.8;
+            actualSpeed = actualSpeed * 0.8;
+        }
         if (this.up) {
-            this.y_speed -= 0.13;
+            this.y_speed -= actualSpeed;
         }
         if (this.left) {
-            this.x_speed -= 0.13;
+            this.x_speed -= actualSpeed;
         }
         if (this.right) {
-            this.x_speed += 0.13;
+            this.x_speed += actualSpeed;
         }
         if (this.down) {
-            this.y_speed += 0.13;
+            this.y_speed += actualSpeed;
         }
         this.sprite.x += this.x_speed;
         this.sprite.y += this.y_speed;

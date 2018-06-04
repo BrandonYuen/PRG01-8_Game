@@ -3,13 +3,12 @@ class Game {
 	public static canvasHeigth = 768
 
 	private static instance: Game
-
 	public static PIXI: any
-	public static JSON:any
-
-	private background = new PIXI.Sprite()
+	private background: GameObject
 	private player: Player
-	public static bullets: Array<PIXI.Graphics>
+	public static bullets: Array<Bullet> = []
+	public static sounds: any = {}
+	public objects: Array<GameObject> = []
 
 	public static getInstance() {
 		if (!Game.instance) {
@@ -23,14 +22,14 @@ class Game {
 		Game.PIXI.stage.interactive = true
 		document.body.appendChild(Game.PIXI.view)
 
-		// Add empty properties
-		Game.bullets = []
-
 		// Add background
-		Game.PIXI.stage.addChild(this.background)
+		this.background = new GameObject(Game.PIXI.stage)
 
 		// Add player
 		this.player = new Player(Game.PIXI.stage)
+
+		// And add them to objects array
+		this.objects.push(this.background, this.player)
 
 		// Load textures
 		Game.PIXI.loader
@@ -38,13 +37,19 @@ class Game {
 			.add('./images/player/manBlue_gun.png')
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
-			.load(() => this.setup())
+			.load(() => this.onLoaderComplete())
+
+		// Load sounds
+		Game.sounds.pistol1 = new Howl({
+			src: ['./sounds/pistolShot1.mp3'],
+			volume: 0.5,
+			preload: true
+		})
 	}
 
-	// Run setup when textures are loaded
-	private setup(): void {
+	private onLoaderComplete(): void {
 		// Update background texture
-		this.background.texture = Game.PIXI.loader.resources["./images/level/level1.png"].texture
+		this.background.updateTexture(Game.PIXI.loader.resources["./images/level/level1.png"].texture)
 
 		// Update player texture
 		this.player.updateTexture(Game.PIXI.loader.resources['./images/player/manBlue_gun.png'].texture)
@@ -54,18 +59,28 @@ class Game {
 	}
 
 	private gameLoop(): void {
-		// Update player
-		this.player.update()
-		
-		for(var b=Game.bullets.length-1;b>=0;b--){
-			Game.bullets[b].position.x += Math.cos(Game.bullets[b].rotation)*20;
-			Game.bullets[b].position.y += Math.sin(Game.bullets[b].rotation)*20;
+		// Update all game objects
+		for (let o of this.objects) {
+			o.update()
+		}
+
+		// Update all bullets
+		for (let b of Game.bullets) {
+			b.update()
 		}
 
 		// Render stage
 		Game.PIXI.renderer.render(Game.PIXI.stage)
 
 		requestAnimationFrame(() => this.gameLoop())
+	}
+
+	public static removeBullet(b: Bullet): void {
+		Game.PIXI.stage.removeChild(b)
+		let index: number = Game.bullets.indexOf(b);
+		if (index !== -1) {
+			Game.bullets.splice(index, 1);
+		}      
 	}
 }
 

@@ -9,10 +9,13 @@ class Player extends GameObject {
 	private y_speed: number = 0
 	public gunShotContainer = new PIXI.Container
 	public gunShotEmitter: any
+
+	// Options
 	private gunOffset = {
 		angle: 19.20,
 		distance: 27
 	}
+	private speed: number = 0.25
 
 
 	constructor(stage: PIXI.Container) {
@@ -41,74 +44,12 @@ class Player extends GameObject {
 		super.updateTexture(texture)
 
 		// Create gunshot emitter when textures are loaded and updated
-		this.gunShotEmitter = new gunShotEmitter(this.gunShotContainer,
-			[
-				Game.PIXI.loader.resources['./images/particles/particle.png'].texture,
-				Game.PIXI.loader.resources['./images/particles/Fire.png'].texture
-			],
-			{
-				alpha: {
-					start: 0.62,
-					end: 0
-				},
-				scale: {
-					start: 0.2,
-					end: 0.001,
-					minimumScaleMultiplier: 0.68
-				},
-				color: {
-					start: '#fff185',
-					end: '#ff622c'
-				},
-				speed: {
-					start: 100,
-					end: 1,
-					minimumSpeedMultiplier: 1.11
-				},
-				acceleration: {
-					x: 0,
-					y: 0
-				},
-				maxSpeed: 1,
-				startRotation: {
-					min: 250,
-					max: 300
-				},
-				noRotation: false,
-				rotationSpeed: {
-					min: 0,
-					max: 0
-				},
-				lifetime: {
-					min: 0.01,
-					max: 0.5
-				},
-				blendMode: 'color_dodge',
-				frequency: 0.001,
-				emitterLifetime: 0,
-				maxParticles: 100,
-				pos: {
-					x: 0,
-					y: 0
-				},
-				addAtBack: false,
-				spawnType: 'circle',
-				spawnCircle: {
-					x: 0,
-					y: 0,
-					r: 0.01
-				}
-			}
-		)
+		this.gunShotEmitter = new gunShotEmitter(this.gunShotContainer)
+		
 	}
 
 	public update(): void {
-		// Update gunshot container's location to match pistol
-		let offset = {
-			x: 20,
-			y: 20
-		}
-
+		// Update gunshot container's location to match pistol barrel
 		this.gunShotContainer.x = this.sprite.x+Math.cos(this.sprite.rotation+this.gunOffset.angle)*this.gunOffset.distance
 		this.gunShotContainer.y = this.sprite.y+Math.sin(this.sprite.rotation+this.gunOffset.angle)*this.gunOffset.distance
 		this.gunShotContainer.rotation = this.sprite.rotation - 30
@@ -125,19 +66,16 @@ class Player extends GameObject {
 			this.gunShotContainer.y
 		)
 
-		let bullet = new PIXI.Graphics();  
-		bullet.beginFill(0x123456);  
-		bullet.drawRect(0,0,20,5);  
-		bullet.endFill();  
-		bullet.position.x = this.gunShotContainer.x;
-		bullet.position.y = this.gunShotContainer.y;
-		bullet.rotation = rotation;
+		new Bullet(this.gunShotContainer, {
+			rotation: rotation,
+			speed: 30
+		})
 
-		Game.PIXI.stage.addChild(bullet);
-		Game.bullets.push(bullet);
-
-		// Spawn gunshot particle
+		// Start a gunshot animation
 		this.gunShotEmitter.start(100)
+
+		// Start sound effect
+		Game.sounds.pistol1.play()
 	}
 
 	private keyListener(event: KeyboardEvent): void {
@@ -164,22 +102,29 @@ class Player extends GameObject {
 	}
 
 	private updateMovement(): void {
+		let actualSpeed = this.speed
+
+		// Reduce speed if moving in multiple directions
+		if ((this.right && this.down) || (this.right && this.up) || (this.left && this.down) || (this.left && this.up)) {
+			actualSpeed = actualSpeed * 0.8
+			actualSpeed = actualSpeed * 0.8
+		}
+
 		if (this.up) {
-			this.y_speed -= 0.13
+			this.y_speed -= actualSpeed
 		}
 
 		if (this.left) {
-			this.x_speed -= 0.13
+			this.x_speed -= actualSpeed
 		}
 
 		if (this.right) {
-			this.x_speed += 0.13
+			this.x_speed += actualSpeed
 		}
 
 		if (this.down) {
-			this.y_speed += 0.13
+			this.y_speed += actualSpeed
 		}
-
 		this.sprite.x += this.x_speed
 		this.sprite.y += this.y_speed
 		this.x_speed *= 0.9 // friction
