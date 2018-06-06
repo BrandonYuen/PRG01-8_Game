@@ -1,14 +1,17 @@
+
 class Game {
 	public static canvasWidth = 1280
 	public static canvasHeigth = 768
 
 	private static instance: Game
 	public static PIXI: any
-	private background: GameObject
+	public static BUMP: any = new Bump(PIXI)
+	private tiledMap: any
 	private player: Player
 	public static bullets: Array<Bullet> = []
 	public static sounds: any = {}
-	public objects: Array<GameObject> = []
+
+	public static walls: Array<PIXI.extras.AnimatedSprite> = []
 
 	public static getInstance() {
 		if (!Game.instance) {
@@ -22,21 +25,20 @@ class Game {
 		Game.PIXI.stage.interactive = true
 		document.body.appendChild(Game.PIXI.view)
 
-		// Add background
-		this.background = new GameObject(Game.PIXI.stage)
+		// Add tiledMap
+		this.tiledMap = new PIXI.Container()
+		Game.PIXI.stage.addChild(this.tiledMap);
 
 		// Add player
 		this.player = new Player(Game.PIXI.stage)
 
-		// And add them to objects array
-		this.objects.push(this.background, this.player)
-
 		// Load textures
-		Game.PIXI.loader
+		PIXI.loader
 			.add('./images/level/level1.png')
 			.add('./images/player/manBlue_gun.png')
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
+			.add('./maps/01_brandonshooter.tmx')
 			.load(() => this.onLoaderComplete())
 
 		// Load sounds
@@ -48,21 +50,24 @@ class Game {
 	}
 
 	private onLoaderComplete(): void {
-		// Update background texture
-		this.background.updateTexture(Game.PIXI.loader.resources["./images/level/level1.png"].texture)
 
+		// Add tiled map
+		this.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_brandonshooter.tmx"));
+
+		// Save all walls to alias
+		for (let w of this.tiledMap.children[0].children[2].children) {
+			Game.walls.push(w)
+		}
 		// Update player texture
-		this.player.updateTexture(Game.PIXI.loader.resources['./images/player/manBlue_gun.png'].texture)
+		this.player.updateTexture(PIXI.loader.resources['./images/player/manBlue_gun.png'].texture)
 
 		// Start gameloop
 		requestAnimationFrame(() => this.gameLoop())
 	}
 
 	private gameLoop(): void {
-		// Update all game objects
-		for (let o of this.objects) {
-			o.update()
-		}
+		// Update player
+		this.player.update()
 
 		// Update all bullets
 		for (let b of Game.bullets) {

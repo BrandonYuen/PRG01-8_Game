@@ -6,8 +6,8 @@ class gunShotEmitter extends PIXI.particles.Emitter {
     constructor (container: PIXI.Container) {
 		super(container,
 			[
-				Game.PIXI.loader.resources['./images/particles/particle.png'].texture,
-				Game.PIXI.loader.resources['./images/particles/Fire.png'].texture
+				PIXI.loader.resources['./images/particles/particle.png'].texture,
+				PIXI.loader.resources['./images/particles/Fire.png'].texture
 			],
 			{
 				alpha: {

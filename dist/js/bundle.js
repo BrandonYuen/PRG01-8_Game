@@ -12,18 +12,18 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
-        this.objects = [];
         Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeigth });
         Game.PIXI.stage.interactive = true;
         document.body.appendChild(Game.PIXI.view);
-        this.background = new GameObject(Game.PIXI.stage);
+        this.tiledMap = new PIXI.Container();
+        Game.PIXI.stage.addChild(this.tiledMap);
         this.player = new Player(Game.PIXI.stage);
-        this.objects.push(this.background, this.player);
-        Game.PIXI.loader
+        PIXI.loader
             .add('./images/level/level1.png')
             .add('./images/player/manBlue_gun.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
+            .add('./maps/01_brandonshooter.tmx')
             .load(function () { return _this.onLoaderComplete(); });
         Game.sounds.pistol1 = new Howl({
             src: ['./sounds/pistolShot1.mp3'],
@@ -39,18 +39,19 @@ var Game = (function () {
     };
     Game.prototype.onLoaderComplete = function () {
         var _this = this;
-        this.background.updateTexture(Game.PIXI.loader.resources["./images/level/level1.png"].texture);
-        this.player.updateTexture(Game.PIXI.loader.resources['./images/player/manBlue_gun.png'].texture);
+        this.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_brandonshooter.tmx"));
+        for (var _i = 0, _a = this.tiledMap.children[0].children[2].children; _i < _a.length; _i++) {
+            var w = _a[_i];
+            Game.walls.push(w);
+        }
+        this.player.updateTexture(PIXI.loader.resources['./images/player/manBlue_gun.png'].texture);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        for (var _i = 0, _a = this.objects; _i < _a.length; _i++) {
-            var o = _a[_i];
-            o.update();
-        }
-        for (var _b = 0, _c = Game.bullets; _b < _c.length; _b++) {
-            var b = _c[_b];
+        this.player.update();
+        for (var _i = 0, _a = Game.bullets; _i < _a.length; _i++) {
+            var b = _a[_i];
             b.update();
         }
         Game.PIXI.renderer.render(Game.PIXI.stage);
@@ -65,8 +66,10 @@ var Game = (function () {
     };
     Game.canvasWidth = 1280;
     Game.canvasHeigth = 768;
+    Game.BUMP = new Bump(PIXI);
     Game.bullets = [];
     Game.sounds = {};
+    Game.walls = [];
     return Game;
 }());
 window.addEventListener("load", function () {
@@ -97,6 +100,9 @@ var Bullet = (function (_super) {
         if (this.lifeTime > this.maxLifetime) {
             Game.removeBullet(this);
         }
+        if (Util.checkCollisionWithWalls(this)) {
+            Game.removeBullet(this);
+        }
     };
     return Bullet;
 }(PIXI.Graphics));
@@ -115,8 +121,8 @@ var gunShotEmitter = (function (_super) {
     __extends(gunShotEmitter, _super);
     function gunShotEmitter(container) {
         var _this = _super.call(this, container, [
-            Game.PIXI.loader.resources['./images/particles/particle.png'].texture,
-            Game.PIXI.loader.resources['./images/particles/Fire.png'].texture
+            PIXI.loader.resources['./images/particles/particle.png'].texture,
+            PIXI.loader.resources['./images/particles/Fire.png'].texture
         ], {
             alpha: {
                 start: 0.62,
@@ -274,7 +280,15 @@ var Player = (function (_super) {
             this.y_speed += actualSpeed;
         }
         this.sprite.x += this.x_speed;
+        if (Util.checkCollisionWithWalls(this.sprite)) {
+            this.sprite.x -= this.x_speed;
+            this.x_speed = 0;
+        }
         this.sprite.y += this.y_speed;
+        if (Util.checkCollisionWithWalls(this.sprite)) {
+            this.sprite.y -= this.y_speed;
+            this.y_speed = 0;
+        }
         this.x_speed *= 0.9;
         this.y_speed *= 0.9;
     };
@@ -291,6 +305,17 @@ var Util = (function () {
         var dist_X = mx - px;
         var angle = Math.atan2(dist_Y, dist_X);
         return angle;
+    };
+    Util.checkCollisionWithWalls = function (object) {
+        var colliding = false;
+        for (var _i = 0, _a = Game.walls; _i < _a.length; _i++) {
+            var w = _a[_i];
+            if (Game.BUMP.hitTestRectangle(object, w)) {
+                colliding = true;
+                break;
+            }
+        }
+        return colliding;
     };
     return Util;
 }());

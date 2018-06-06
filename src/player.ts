@@ -126,9 +126,24 @@ class Player extends GameObject {
 			this.y_speed += actualSpeed
 		}
 		this.sprite.x += this.x_speed
+
+        // If colliding with a wall, undo position X change
+        if (Util.checkCollisionWithWalls(this.sprite)) {
+			this.sprite.x -= this.x_speed
+			this.x_speed = 0
+		}
+
 		this.sprite.y += this.y_speed
-		this.x_speed *= 0.9 // friction
-		this.y_speed *= 0.9 // friction
+
+        // If colliding with a wall, undo position Y change
+        if (Util.checkCollisionWithWalls(this.sprite)) {
+			this.sprite.y -= this.y_speed
+			this.y_speed = 0
+		}
+
+		// Friction
+		this.x_speed *= 0.9
+		this.y_speed *= 0.9
 	}
 
 	private updateAim(): void {

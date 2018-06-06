@@ -36,5 +36,11 @@ class Bullet extends PIXI.Graphics {
         if (this.lifeTime > this.maxLifetime) {
             Game.removeBullet(this)
         }
+
+        // Collision with walls
+        if (Util.checkCollisionWithWalls(this)) {
+            Game.removeBullet(this)
+        }
+
     }
 }
