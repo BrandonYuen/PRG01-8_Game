@@ -1,7 +1,7 @@
 
 class Game {
 	public static canvasWidth = 1600
-	public static canvasHeigth = 896
+	public static canvasHeight = 896
 
 	private static instance: Game
 	public static PIXI: any
@@ -13,6 +13,9 @@ class Game {
 
 	public static walls: Array<PIXI.extras.AnimatedSprite> = []
 
+	public static emitters: Array<any> = []
+	public static containers: Array<any> = []
+
 	public static getInstance() {
 		if (!Game.instance) {
 			Game.instance = new Game()
@@ -21,7 +24,7 @@ class Game {
 	}
 
 	constructor() {
-		Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeigth })
+		Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeight })
 		Game.PIXI.stage.interactive = true
 		document.body.appendChild(Game.PIXI.view)
 
@@ -34,9 +37,16 @@ class Game {
 
 		// Load textures
 		PIXI.loader
+			// Images
 			.add('./images/player/manBlue_gun.png')
+			// Particles
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
+			// Json
+			.add('./json/gunShot.json')
+			.add('./json/bulletImpact.json')
+			.add('./json/bulletTrail.json')
+			// TileMaps
 			.add('./maps/01_empty.tmx')
 			.add('./maps/01_intro.tmx')
 			.load(() => this.onLoaderComplete())
@@ -45,6 +55,27 @@ class Game {
 		Game.sounds.pistol1 = new Howl({
 			src: ['./sounds/pistolShot1.mp3'],
 			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.bulletImpact = []
+		Game.sounds.bulletImpact[0] = new Howl({
+			src: ['./sounds/bulletImpact1.wav'],
+			volume: 1,
+			preload: true
+		})
+		Game.sounds.bulletImpact[1] = new Howl({
+			src: ['./sounds/bulletImpact2.wav'],
+			volume: 1,
+			preload: true
+		})
+		Game.sounds.bulletImpact[2] = new Howl({
+			src: ['./sounds/bulletImpact3.wav'],
+			volume: 1,
+			preload: true
+		})
+		Game.sounds.glassBreak = new Howl({
+			src: ['./sounds/glassBreak.wav'],
+			volume: 1,
 			preload: true
 		})
 	}
@@ -74,6 +105,11 @@ class Game {
 			b.update()
 		}
 
+		// Update all emitters
+		for (let e of Game.emitters) {
+			e.update()
+		}
+
 		// Render stage
 		Game.PIXI.renderer.render(Game.PIXI.stage)
 
@@ -86,6 +122,21 @@ class Game {
 		if (index !== -1) {
 			Game.bullets.splice(index, 1);
 		}      
+	}
+
+	public static removeEmitter(e: Emitter): void {
+		let index = Game.emitters.indexOf(e)
+		if (index !== -1) {
+			Game.emitters.splice(index, 1);
+		}
+	}
+
+	public static removeContainer(c: PIXI.Container): void {
+		Game.PIXI.stage.removeChild(c)
+		let index = Game.containers.indexOf(c)
+		if (index !== -1) {
+			Game.containers.splice(index, 1);
+		}
 	}
 }
 

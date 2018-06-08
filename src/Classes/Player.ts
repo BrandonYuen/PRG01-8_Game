@@ -1,4 +1,5 @@
-/// <reference path="gameObject.ts"/>
+/// <reference path="GameObject.ts"/>
+/// <reference path="Walking.ts"/>
 
 class Player extends GameObject {
 	private left: boolean = false
@@ -9,14 +10,15 @@ class Player extends GameObject {
 	private y_speed: number = 0
 	public gunShotContainer = new PIXI.Container
 	public gunShotEmitter: any
+	private movement:Movement = new Walking(this)
 
 	// Options
+	private baseSpeed: number = 0.25
+	private shootingSpread: number = 15 // The default spread of the gun TODO: base on the gun and movement of entity
 	private gunOffset = {
 		angle: 19.20,
 		distance: 27
 	}
-	private speed: number = 0.25
-
 
 	constructor(stage: PIXI.Container) {
 		super(stage)
@@ -35,7 +37,7 @@ class Player extends GameObject {
 
 	private resetPosition(): void {
 		this.sprite.x = Game.canvasWidth / 2;
-		this.sprite.y = Game.canvasHeigth / 2;
+		this.sprite.y = Game.canvasHeight / 2;
 		this.sprite.anchor.x = 0.5;  
 		this.sprite.anchor.y = 0.5;
 	}
@@ -44,7 +46,14 @@ class Player extends GameObject {
 		super.updateTexture(texture)
 
 		// Create gunshot emitter when textures are loaded and updated
-		this.gunShotEmitter = new gunShotEmitter(this.gunShotContainer)
+		this.gunShotEmitter = new Emitter(
+			this.gunShotContainer, 
+			[
+				PIXI.loader.resources['./images/particles/particle.png'].texture,
+				PIXI.loader.resources['./images/particles/Fire.png'].texture
+			],
+			PIXI.loader.resources['./json/gunShot.json'].data
+		)
 		
 	}
 
@@ -54,20 +63,24 @@ class Player extends GameObject {
 		this.gunShotContainer.y = this.sprite.y+Math.sin(this.sprite.rotation+this.gunOffset.angle)*this.gunOffset.distance
 		this.gunShotContainer.rotation = this.sprite.rotation - 30
 		this.gunShotEmitter.update()
-		this.updateMovement()
+		this.movement.move()
 		this.updateAim()
 	}
 
 	private shoot(){  
-		let rotation = Util.rotateToPoint(
+		let perfectAngle = Util.rotateToPoint(
 			Game.PIXI.renderer.plugins.interaction.mouse.global.x, 
 			Game.PIXI.renderer.plugins.interaction.mouse.global.y, 
 			this.gunShotContainer.x, 
 			this.gunShotContainer.y
 		)
 
+		// Random angle of bullet based on entities shooting spread angle
+		let randomAngleAddition = Math.floor(Math.random() * this.shootingSpread) - this.shootingSpread/2
+		let randomAngle = Util.toRadiant(Util.correctDegrees(Util.toDegrees(perfectAngle) + randomAngleAddition))
+
 		new Bullet(this.gunShotContainer, {
-			rotation: rotation,
+			rotation: randomAngle,
 			speed: 30
 		})
 
@@ -99,51 +112,6 @@ class Player extends GameObject {
 				this.right = key_state
 				break
 		}
-	}
-
-	private updateMovement(): void {
-		let actualSpeed = this.speed
-
-		// Reduce speed if moving in multiple directions
-		if ((this.right && this.down) || (this.right && this.up) || (this.left && this.down) || (this.left && this.up)) {
-			actualSpeed = actualSpeed * 0.8
-			actualSpeed = actualSpeed * 0.8
-		}
-
-		if (this.up) {
-			this.y_speed -= actualSpeed
-		}
-
-		if (this.left) {
-			this.x_speed -= actualSpeed
-		}
-
-		if (this.right) {
-			this.x_speed += actualSpeed
-		}
-
-		if (this.down) {
-			this.y_speed += actualSpeed
-		}
-		this.sprite.x += this.x_speed
-
-        // If colliding with a wall, undo position X change
-        if (Util.checkCollisionWithWalls(this.sprite)) {
-			this.sprite.x -= this.x_speed
-			this.x_speed = 0
-		}
-
-		this.sprite.y += this.y_speed
-
-        // If colliding with a wall, undo position Y change
-        if (Util.checkCollisionWithWalls(this.sprite)) {
-			this.sprite.y -= this.y_speed
-			this.y_speed = 0
-		}
-
-		// Friction
-		this.x_speed *= 0.9
-		this.y_speed *= 0.9
 	}
 
 	private updateAim(): void {
