@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="25" height="14" tilewidth="64" tileheight="64" infinite="0" nextobjectid="1">
+ <tileset firstgid="1" name="tilesheet_complete" tilewidth="64" tileheight="64" tilecount="540" columns="27">
+  <image source="tilesets/tilesheet_complete.png" width="1728" height="1280"/>
+ </tileset>
+ <layer name="Floors" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJx1k1EOwzAIQ1Pg/mdeJy3S05v5QI1SMDYmc8553pg3GucH52/U7/+NQV4hn2di9YJPvNujgNO4Ny9yKmio86+pEOZtHOszf3NgLjkMsFjfIb+V63nQhwp3o2CvpLlDX3pHH1q9W1iek/0hJ2rfNJQwrC/5Q26eY5p52p+0D8SfJS/to7Um/t5xz5Q++i3Yi9G39XUveu3aNAfPctt1710t+A77yRq/bc6a3lpjelvsaV0M7xg98k54h1nvud2cD5UnA3w=
+  </data>
+ </layer>
+ <layer name="Walls" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJzjZ2RgEKQhFgBiHSCmJdAZtWPUjlE7Ru2gkh1aNC4TtYEYADYVB+0=
+  </data>
+ </layer>
+</map>

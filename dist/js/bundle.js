@@ -15,15 +15,15 @@ var Game = (function () {
         Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeigth });
         Game.PIXI.stage.interactive = true;
         document.body.appendChild(Game.PIXI.view);
-        this.tiledMap = new PIXI.Container();
-        Game.PIXI.stage.addChild(this.tiledMap);
+        Game.tiledMap = new PIXI.Container();
+        Game.PIXI.stage.addChild(Game.tiledMap);
         this.player = new Player(Game.PIXI.stage);
         PIXI.loader
-            .add('./images/level/level1.png')
             .add('./images/player/manBlue_gun.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
-            .add('./maps/01_brandonshooter.tmx')
+            .add('./maps/01_empty.tmx')
+            .add('./maps/01_intro.tmx')
             .load(function () { return _this.onLoaderComplete(); });
         Game.sounds.pistol1 = new Howl({
             src: ['./sounds/pistolShot1.mp3'],
@@ -39,8 +39,8 @@ var Game = (function () {
     };
     Game.prototype.onLoaderComplete = function () {
         var _this = this;
-        this.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_brandonshooter.tmx"));
-        for (var _i = 0, _a = this.tiledMap.children[0].children[2].children; _i < _a.length; _i++) {
+        Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
+        for (var _i = 0, _a = Game.tiledMap.children[0].children[2].children; _i < _a.length; _i++) {
             var w = _a[_i];
             Game.walls.push(w);
         }
@@ -64,8 +64,8 @@ var Game = (function () {
             Game.bullets.splice(index, 1);
         }
     };
-    Game.canvasWidth = 1280;
-    Game.canvasHeigth = 768;
+    Game.canvasWidth = 1600;
+    Game.canvasHeigth = 896;
     Game.BUMP = new Bump(PIXI);
     Game.bullets = [];
     Game.sounds = {};

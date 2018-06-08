@@ -1,12 +1,12 @@
 
 class Game {
-	public static canvasWidth = 1280
-	public static canvasHeigth = 768
+	public static canvasWidth = 1600
+	public static canvasHeigth = 896
 
 	private static instance: Game
 	public static PIXI: any
 	public static BUMP: any = new Bump(PIXI)
-	private tiledMap: any
+	public static tiledMap: any
 	private player: Player
 	public static bullets: Array<Bullet> = []
 	public static sounds: any = {}
@@ -26,19 +26,19 @@ class Game {
 		document.body.appendChild(Game.PIXI.view)
 
 		// Add tiledMap
-		this.tiledMap = new PIXI.Container()
-		Game.PIXI.stage.addChild(this.tiledMap);
+		Game.tiledMap = new PIXI.Container()
+		Game.PIXI.stage.addChild(Game.tiledMap);
 
 		// Add player
 		this.player = new Player(Game.PIXI.stage)
 
 		// Load textures
 		PIXI.loader
-			.add('./images/level/level1.png')
 			.add('./images/player/manBlue_gun.png')
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
-			.add('./maps/01_brandonshooter.tmx')
+			.add('./maps/01_empty.tmx')
+			.add('./maps/01_intro.tmx')
 			.load(() => this.onLoaderComplete())
 
 		// Load sounds
@@ -52,10 +52,10 @@ class Game {
 	private onLoaderComplete(): void {
 
 		// Add tiled map
-		this.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_brandonshooter.tmx"));
+		Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
 
 		// Save all walls to alias
-		for (let w of this.tiledMap.children[0].children[2].children) {
+		for (let w of Game.tiledMap.children[0].children[2].children) {
 			Game.walls.push(w)
 		}
 		// Update player texture
