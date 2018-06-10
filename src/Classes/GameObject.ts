@@ -1,14 +1,11 @@
 
-class GameObject {
+abstract class GameObject {
 	public sprite = new PIXI.Sprite()
 
-	constructor(stage: PIXI.Container) {
+	constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		stage.addChild(this.sprite);
-	}
-
-	public updateTexture(texture: any): void {
 		this.sprite.texture = texture;
 	}
 
-	public update(): void {}
+	abstract update(): void
 }

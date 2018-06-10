@@ -1,27 +1,25 @@
-/// <reference path="GameObject.ts"/>
 /// <reference path="Walking.ts"/>
+/// <reference path="Entity.ts"/>
 
-class Player extends GameObject {
-	private left: boolean = false
-	private right: boolean = false
-	private up: boolean = false
-	private down: boolean = false
-	private x_speed: number = 0
-	private y_speed: number = 0
+class Player extends Entity {
+	private static instance: Player
 	public gunShotContainer = new PIXI.Container
 	public gunShotEmitter: any
-	private movement:Movement = new Walking(this)
+	public accuracy: number = 1
 
 	// Options
-	private baseSpeed: number = 0.25
-	private shootingSpread: number = 15 // The default spread of the gun TODO: base on the gun and movement of entity
-	private gunOffset = {
-		angle: 19.20,
-		distance: 27
+	public baseSpeed: number = 0.25
+	private gun:Gun = new Pistol(this)
+
+	public static getInstance(stage: PIXI.Container, texture: PIXI.Texture) {
+		if (!Player.instance) {
+			Player.instance = new Player(stage, texture)
+		}
+		return Player.instance
 	}
 
-	constructor(stage: PIXI.Container) {
-		super(stage)
+	private constructor(stage: PIXI.Container, texture: PIXI.Texture) {
+		super(stage, texture)
 
 		// Add keyboard listeners
 		window.addEventListener("keydown", (e: KeyboardEvent) => this.keyListener(e))
@@ -42,53 +40,16 @@ class Player extends GameObject {
 		this.sprite.anchor.y = 0.5;
 	}
 
-	public updateTexture(texture: any): void {
-		super.updateTexture(texture)
-
-		// Create gunshot emitter when textures are loaded and updated
-		this.gunShotEmitter = new Emitter(
-			this.gunShotContainer, 
-			[
-				PIXI.loader.resources['./images/particles/particle.png'].texture,
-				PIXI.loader.resources['./images/particles/Fire.png'].texture
-			],
-			PIXI.loader.resources['./json/gunShot.json'].data
-		)
-		
-	}
-
 	public update(): void {
-		// Update gunshot container's location to match pistol barrel
-		this.gunShotContainer.x = this.sprite.x+Math.cos(this.sprite.rotation+this.gunOffset.angle)*this.gunOffset.distance
-		this.gunShotContainer.y = this.sprite.y+Math.sin(this.sprite.rotation+this.gunOffset.angle)*this.gunOffset.distance
-		this.gunShotContainer.rotation = this.sprite.rotation - 30
-		this.gunShotEmitter.update()
-		this.movement.move()
+		// Update all observers too
+        for (let observer of this.observers) {
+            observer.update()
+        }
 		this.updateAim()
 	}
 
 	private shoot(){  
-		let perfectAngle = Util.rotateToPoint(
-			Game.PIXI.renderer.plugins.interaction.mouse.global.x, 
-			Game.PIXI.renderer.plugins.interaction.mouse.global.y, 
-			this.gunShotContainer.x, 
-			this.gunShotContainer.y
-		)
-
-		// Random angle of bullet based on entities shooting spread angle
-		let randomAngleAddition = Math.floor(Math.random() * this.shootingSpread) - this.shootingSpread/2
-		let randomAngle = Util.toRadiant(Util.correctDegrees(Util.toDegrees(perfectAngle) + randomAngleAddition))
-
-		new Bullet(this.gunShotContainer, {
-			rotation: randomAngle,
-			speed: 30
-		})
-
-		// Start a gunshot animation
-		this.gunShotEmitter.start(100)
-
-		// Start sound effect
-		Game.sounds.pistol1.play()
+		this.gun.shoot({x: Game.PIXI.renderer.plugins.interaction.mouse.global.x, y: Game.PIXI.renderer.plugins.interaction.mouse.global.y})
 	}
 
 	private keyListener(event: KeyboardEvent): void {

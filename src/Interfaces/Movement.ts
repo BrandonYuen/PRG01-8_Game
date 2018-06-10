@@ -1,5 +1,5 @@
 interface Movement {
-    entity: any
+    subject: Entity
     speedMultiplier: number
-    move(): void
+    update(): void
 }

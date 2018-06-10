@@ -1,55 +1,56 @@
-class Walking implements Movement {
-    entity: any
+class Walking implements Movement, Observer {
+    public subject:Entity
     speedMultiplier: number = 1
 
-    constructor(entity: any) {
-        this.entity = entity
+    constructor(subject: Entity) {
+		this.subject = subject
+		subject.registerObserver(this)
     }
 
-    move(): void {
-		let actualSpeed = this.entity.baseSpeed * this.speedMultiplier
+    update(): void {
+		let actualSpeed = this.subject.baseSpeed * this.speedMultiplier
 
 		// Reduce speed if moving in multiple directions
-		if ((this.entity.right && this.entity.down) || (this.entity.right && this.entity.up) || (this.entity.left && this.entity.down) || (this.entity.left && this.entity.up)) {
+		if ((this.subject.right && this.subject.down) || (this.subject.right && this.subject.up) || (this.subject.left && this.subject.down) || (this.subject.left && this.subject.up)) {
 			actualSpeed = actualSpeed * 0.8
 			actualSpeed = actualSpeed * 0.8
 		}
 
-		if (this.entity.up) {
-			this.entity.y_speed -= actualSpeed
+		if (this.subject.up) {
+			this.subject.y_speed -= actualSpeed
 		}
 
-		if (this.entity.left) {
-			this.entity.x_speed -= actualSpeed
+		if (this.subject.left) {
+			this.subject.x_speed -= actualSpeed
 		}
 
-		if (this.entity.right) {
-			this.entity.x_speed += actualSpeed
+		if (this.subject.right) {
+			this.subject.x_speed += actualSpeed
 		}
 
-		if (this.entity.down) {
-			this.entity.y_speed += actualSpeed
+		if (this.subject.down) {
+			this.subject.y_speed += actualSpeed
         }
         
-		this.entity.sprite.x += this.entity.x_speed
+		this.subject.sprite.x += this.subject.x_speed
 
         // If colliding with a wall, undo position X change
-        if (Util.checkCollisionWithWalls(this.entity.sprite)) {
-			this.entity.sprite.x -= this.entity.x_speed
-			this.entity.x_speed = 0
+        if (Util.checkCollisionWithWalls(this.subject.sprite)) {
+			this.subject.sprite.x -= this.subject.x_speed
+			this.subject.x_speed = 0
 		}
 
-		this.entity.sprite.y += this.entity.y_speed
+		this.subject.sprite.y += this.subject.y_speed
 
         // If colliding with a wall, undo position Y change
-        if (Util.checkCollisionWithWalls(this.entity.sprite)) {
-			this.entity.sprite.y -= this.entity.y_speed
-			this.entity.y_speed = 0
+        if (Util.checkCollisionWithWalls(this.subject.sprite)) {
+			this.subject.sprite.y -= this.subject.y_speed
+			this.subject.y_speed = 0
 		}
 
 		// Friction
-		this.entity.x_speed *= 0.9
-		this.entity.y_speed *= 0.9
+		this.subject.x_speed *= 0.9
+		this.subject.y_speed *= 0.9
     }
 
 }

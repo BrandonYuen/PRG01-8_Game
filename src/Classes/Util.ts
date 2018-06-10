@@ -31,7 +31,6 @@ class Util {
 	}
 
 	static correctDegrees(degrees:number) {
-		console.log('Correcting ('+degrees+')')
 		// degrees = 200 (20 over 180)
 		let correctDegrees = degrees
 		if (degrees > 180) {
@@ -41,7 +40,6 @@ class Util {
 			let rest = degrees + 180
 			correctDegrees = 180 + rest
 		}
-		console.log('Correct degrees ('+correctDegrees+')')
 
 		return correctDegrees
 	}

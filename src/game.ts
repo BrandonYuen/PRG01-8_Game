@@ -7,7 +7,6 @@ class Game {
 	public static PIXI: any
 	public static BUMP: any = new Bump(PIXI)
 	public static tiledMap: any
-	private player: Player
 	public static bullets: Array<Bullet> = []
 	public static sounds: any = {}
 
@@ -15,6 +14,7 @@ class Game {
 
 	public static emitters: Array<any> = []
 	public static containers: Array<any> = []
+	public static entities: Array<Entity> = []
 
 	public static getInstance() {
 		if (!Game.instance) {
@@ -23,7 +23,7 @@ class Game {
 		return Game.instance
 	}
 
-	constructor() {
+	private constructor() {
 		Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeight })
 		Game.PIXI.stage.interactive = true
 		document.body.appendChild(Game.PIXI.view)
@@ -31,9 +31,6 @@ class Game {
 		// Add tiledMap
 		Game.tiledMap = new PIXI.Container()
 		Game.PIXI.stage.addChild(Game.tiledMap);
-
-		// Add player
-		this.player = new Player(Game.PIXI.stage)
 
 		// Load textures
 		PIXI.loader
@@ -78,27 +75,36 @@ class Game {
 			volume: 1,
 			preload: true
 		})
+		Game.sounds.emptyMagazine = new Howl({
+			src: ['./sounds/emptyMagazine.wav'],
+			volume: 0.5,
+			preload: true
+		})
 	}
 
 	private onLoaderComplete(): void {
 
-		// Add tiled map
+		// Add tiled map as pixi objects to stage
 		Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
 
 		// Save all walls to alias
 		for (let w of Game.tiledMap.children[0].children[2].children) {
 			Game.walls.push(w)
 		}
-		// Update player texture
-		this.player.updateTexture(PIXI.loader.resources['./images/player/manBlue_gun.png'].texture)
+
+		// Add player
+		Game.entities.push(Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/player/manBlue_gun.png'].texture))
 
 		// Start gameloop
 		requestAnimationFrame(() => this.gameLoop())
 	}
 
 	private gameLoop(): void {
-		// Update player
-		this.player.update()
+
+		// Update all entities
+		for (let e of Game.entities) {
+			e.update()
+		}
 
 		// Update all bullets
 		for (let b of Game.bullets) {
