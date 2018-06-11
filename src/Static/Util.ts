@@ -22,6 +22,20 @@ class Util {
 		return colliding;
 	}
 
+	static checkCollisionWithEntities(object: any){  
+		let colliding:boolean | Entity = false;
+
+		// Check all walls for collision with object
+		for (let e of Game.entities) {
+			if (Game.BUMP.hit(object, e.sprite)) {
+				colliding = e
+				break
+			}
+		}
+
+		return colliding;
+	}
+
 	static toRadiant(degrees: any) {  
 		return degrees * Math.PI / 180
 	}

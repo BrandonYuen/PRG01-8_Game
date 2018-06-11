@@ -7,3 +7,55 @@ body, html {
 * {
 	box-sizing: border-box;
 }
+
+.UIScreen {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    background-color: rgba(0, 0, 0, 0.8); 
+}
+
+.btn {
+    position: relative;
+    width: 300px; height: 100px;
+    background-color: white; 
+    border: 3px solid #000000;
+    border-radius: 25px;
+    color: #5EB15F;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 70px;
+    font-family: "Montserrat", sans-serif;
+    text-shadow: 5px 5px #000000;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.2s; /* Safari */
+    transition-duration: 0.2s;
+    cursor: pointer;
+
+    top: 10%;
+    left: 50%;
+    margin-left: -150px;
+    margin-top: -50px;
+}
+
+.btn:hover {
+    background-color: #5EB15F;
+    color: white;
+}
+
+controls {
+    width: 1000px; height: 500px;
+	background-image: url('/images/UI/controls.png');
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -500px;
+    margin-top: -250px;
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url('../fonts/Montserrat-Bold.ttf') format("truetype");
+}

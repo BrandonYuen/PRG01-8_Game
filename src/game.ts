@@ -1,3 +1,4 @@
+/// <reference path="GameStates/Init.ts"/>
 
 class Game {
 	public static canvasWidth = 1600
@@ -6,15 +7,17 @@ class Game {
 	private static instance: Game
 	public static PIXI: any
 	public static BUMP: any = new Bump(PIXI)
+
 	public static tiledMap: any
 	public static bullets: Array<Bullet> = []
 	public static sounds: any = {}
-
 	public static walls: Array<PIXI.extras.AnimatedSprite> = []
-
 	public static emitters: Array<any> = []
 	public static containers: Array<any> = []
 	public static entities: Array<Entity> = []
+
+	public static state: GameState
+    public static screen: UIScreen
 
 	public static getInstance() {
 		if (!Game.instance) {
@@ -32,88 +35,14 @@ class Game {
 		Game.tiledMap = new PIXI.Container()
 		Game.PIXI.stage.addChild(Game.tiledMap);
 
-		// Load textures
-		PIXI.loader
-			// Images
-			.add('./images/player/manBlue_gun.png')
-			// Particles
-			.add('./images/particles/Fire.png')
-			.add('./images/particles/particle.png')
-			// Json
-			.add('./json/gunShot.json')
-			.add('./json/bulletImpact.json')
-			.add('./json/bulletTrail.json')
-			// TileMaps
-			.add('./maps/01_empty.tmx')
-			.add('./maps/01_intro.tmx')
-			.load(() => this.onLoaderComplete())
-
-		// Load sounds
-		Game.sounds.pistol1 = new Howl({
-			src: ['./sounds/pistolShot1.mp3'],
-			volume: 0.5,
-			preload: true
-		})
-		Game.sounds.bulletImpact = []
-		Game.sounds.bulletImpact[0] = new Howl({
-			src: ['./sounds/bulletImpact1.wav'],
-			volume: 1,
-			preload: true
-		})
-		Game.sounds.bulletImpact[1] = new Howl({
-			src: ['./sounds/bulletImpact2.wav'],
-			volume: 1,
-			preload: true
-		})
-		Game.sounds.bulletImpact[2] = new Howl({
-			src: ['./sounds/bulletImpact3.wav'],
-			volume: 1,
-			preload: true
-		})
-		Game.sounds.glassBreak = new Howl({
-			src: ['./sounds/glassBreak.wav'],
-			volume: 1,
-			preload: true
-		})
-		Game.sounds.emptyMagazine = new Howl({
-			src: ['./sounds/emptyMagazine.wav'],
-			volume: 0.5,
-			preload: true
-		})
-	}
-
-	private onLoaderComplete(): void {
-
-		// Add tiled map as pixi objects to stage
-		Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
-
-		// Save all walls to alias
-		for (let w of Game.tiledMap.children[0].children[2].children) {
-			Game.walls.push(w)
-		}
-
-		// Add player
-		Game.entities.push(Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/player/manBlue_gun.png'].texture))
-
-		// Start gameloop
-		requestAnimationFrame(() => this.gameLoop())
+		// Start gameLoop
+		this.gameLoop()
 	}
 
 	private gameLoop(): void {
-
-		// Update all entities
-		for (let e of Game.entities) {
-			e.update()
-		}
-
-		// Update all bullets
-		for (let b of Game.bullets) {
-			b.update()
-		}
-
-		// Update all emitters
-		for (let e of Game.emitters) {
-			e.update()
+		// Update everything based on the gamestate
+		if (Game.state != null) {
+			Game.state.update()
 		}
 
 		// Render stage
@@ -145,7 +74,3 @@ class Game {
 		}
 	}
 }
-
-window.addEventListener("load", () => {
-	Game.getInstance()
-})

@@ -1,15 +1,11 @@
-/// <reference path="Walking.ts"/>
+/// <reference path="../Strategies/Walking.ts"/>
 /// <reference path="Entity.ts"/>
 
 class Player extends Entity {
 	private static instance: Player
-	public gunShotContainer = new PIXI.Container
-	public gunShotEmitter: any
-	public accuracy: number = 1
 
 	// Options
 	public baseSpeed: number = 0.25
-	private gun:Gun = new Pistol(this)
 
 	public static getInstance(stage: PIXI.Container, texture: PIXI.Texture) {
 		if (!Player.instance) {
@@ -21,35 +17,35 @@ class Player extends Entity {
 	private constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		super(stage, texture)
 
+		this.gun = new Pistol(this)
+
 		// Add keyboard listeners
 		window.addEventListener("keydown", (e: KeyboardEvent) => this.keyListener(e))
 		window.addEventListener("keyup", (e: KeyboardEvent) => this.keyListener(e))
 		Game.PIXI.stage.on("mousedown", () => this.shoot())
 
-		// Reset position
-		this.resetPosition()
-
-		// Add container for gunshot particle
-		Game.PIXI.stage.addChild(this.gunShotContainer)
-	}
-
-	private resetPosition(): void {
-		this.sprite.x = Game.canvasWidth / 2;
-		this.sprite.y = Game.canvasHeight / 2;
-		this.sprite.anchor.x = 0.5;  
-		this.sprite.anchor.y = 0.5;
+		// Position
+		this.sprite.x = 300
+		this.sprite.y = Game.canvasHeight / 2
+		this.sprite.anchor.x = 0.5
+		this.sprite.anchor.y = 0.5
 	}
 
 	public update(): void {
-		// Update all observers too
-        for (let observer of this.observers) {
-            observer.update()
-        }
+		super.update()
 		this.updateAim()
 	}
 
 	private shoot(){  
-		this.gun.shoot({x: Game.PIXI.renderer.plugins.interaction.mouse.global.x, y: Game.PIXI.renderer.plugins.interaction.mouse.global.y})
+		if (this.gun instanceof Gun) {
+			this.gun.shoot({x: Game.PIXI.renderer.plugins.interaction.mouse.global.x, y: Game.PIXI.renderer.plugins.interaction.mouse.global.y})
+		}
+	}
+
+	private reloadGun() {  
+		if (this.gun instanceof Gun) {
+			this.gun.reload()
+		}
 	}
 
 	private keyListener(event: KeyboardEvent): void {
@@ -71,6 +67,10 @@ class Player extends Entity {
 			//D; Walk right
 			case 68:
 				this.right = key_state
+				break
+			//R; Reload
+			case 82:
+				this.reloadGun()
 				break
 		}
 	}

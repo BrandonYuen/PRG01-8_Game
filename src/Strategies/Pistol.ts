@@ -1,6 +1,9 @@
+/// <reference path="Gun.ts"/>
+
 class Pistol extends Gun {
     public maxAmmo:number = 6
     public ammo:number = this.maxAmmo
+    public damage:number = 10
     protected shootingSpread:number = 15 // The default spread of the gun TODO: base on the gun and movement of entity
 	private gunOffset = {
 		angle: 19.20,
@@ -10,10 +13,10 @@ class Pistol extends Gun {
     constructor(subject:Entity) {
         super(subject)
         this.shootingSound = Game.sounds.pistol1
+        this.reloadingSound = Game.sounds.pistolReload
     }
 
     public shoot(targetPosition:any) {
-        
         super.shoot(targetPosition)
     }
 

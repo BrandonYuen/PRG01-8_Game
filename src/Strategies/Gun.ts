@@ -1,12 +1,15 @@
 abstract class Gun implements Observer {
     public maxAmmo:number = 0
     public ammo:number = 0
+    public damage:number = 0
 	public gunShotContainer = new PIXI.Container
     protected gunShotEmitter: any
     protected subject:Entity
     protected accuracy:number = 1
     protected shootingSpread:number = 0
 	protected shootingSound:any
+	protected reloadingSound:any
+	private reloading:boolean = false
     
     constructor(subject:Entity) {
 		this.subject = subject
@@ -28,13 +31,29 @@ abstract class Gun implements Observer {
 
     public update(): void {
         this.gunShotEmitter.update()
-    }
+	}
+	
+	public reload(): void {
+		if (!this.reloading) {
+			this.reloading = true
+			this.reloadingSound.play()
+			this.subject.actionBar.setText('RELOADING')
+	
+			setTimeout( () => {
+				this.ammo = this.maxAmmo
+				this.subject.actionBar.setText('')
+				this.reloading = false
+			}, 3000)
+		}
+	}
 
     public shoot(targetPosition:any): void {
-        if (this.ammo <= 0) {
+		if (this.reloading) {
+			return
+		} else if (this.ammo <= 0) {
             Game.sounds.emptyMagazine.play()
             return
-        }
+        } 
 
 		// Start sound effect
         this.shootingSound.play()
@@ -55,10 +74,17 @@ abstract class Gun implements Observer {
 
 		new Bullet(this.gunShotContainer, {
 			rotation: randomAngle,
-			speed: 30
+			speed: 30,
+			damage: this.damage,
+			shooter: this.subject
 		})
 
 		// Start a gunshot animation
 		this.gunShotEmitter.start(100)
-    }
+	}
+	
+	public remove(): void {
+		Game.PIXI.stage.removeChild(this.gunShotContainer)
+		this.subject.gun = null
+	}
 }

@@ -5,9 +5,13 @@ class Bullet extends PIXI.Graphics {
     public bulletTrailContainer:PIXI.Container = new PIXI.Container
     public bulletTrailEmitter:any
     public lifeTime = 0
+    private damage: number
+    private shooter:GameObject
 
 	constructor(gunShotContainer: PIXI.Container, attributes: any) {
         super()
+        this.shooter = attributes.shooter || null
+        this.damage = attributes.damage || 1
         
         // Draw shape
 		this.beginFill(0x123456)
@@ -88,6 +92,24 @@ class Bullet extends PIXI.Graphics {
             // Sound effect
             let random = Math.floor(Math.random() * Math.floor(Game.sounds.bulletImpact.length))
             Game.sounds.bulletImpact[random].play()
+        }
+
+        // Collision with entities
+        let collisionCheck = Util.checkCollisionWithEntities(this)
+        if (collisionCheck != false) {
+            // If not colliding with shooter of this bullet
+            if (collisionCheck != this.shooter) {
+                // Don't let enemies damage eachother
+                if (this.shooter instanceof EnemySoldier && collisionCheck instanceof EnemySoldier) {
+                    return
+                }
+                collisionCheck.health -= this.damage
+                this.kill()
+
+                // Sound effect
+                let random = Math.floor(Math.random() * Math.floor(Game.sounds.bulletImpactBody.length))
+                Game.sounds.bulletImpactBody[random].play()
+            }
         }
 
     }

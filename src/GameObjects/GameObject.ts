@@ -8,4 +8,8 @@ abstract class GameObject {
 	}
 
 	abstract update(): void
+
+	public kill(): void {
+		Game.PIXI.stage.removeChild(this.sprite);
+	}
 }
