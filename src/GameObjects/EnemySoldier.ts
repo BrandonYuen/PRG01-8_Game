@@ -18,6 +18,12 @@ class EnemySoldier extends Entity {
     }
     
     public update(): void {
-        super.update()
-    }
+		super.update()
+		this.updateAim()
+	}
+	
+	private updateAim(): void {
+
+		// TODO: update aim use visionLine of GUN
+	}
 }

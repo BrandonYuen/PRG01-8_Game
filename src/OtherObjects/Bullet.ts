@@ -104,11 +104,33 @@ class Bullet extends PIXI.Graphics {
                     return
                 }
                 collisionCheck.health -= this.damage
-                this.kill()
+
+                // Create particle container
+                let bulletImpactContainer = new PIXI.Container()
+                bulletImpactContainer.x = this.position.x
+                bulletImpactContainer.y = this.position.y
+                bulletImpactContainer.rotation = this.rotation
+                Game.containers.push(bulletImpactContainer)
+                let indexOfContainer = Game.containers.indexOf(bulletImpactContainer)
+                Game.PIXI.stage.addChild(Game.containers[indexOfContainer])
+    
+                //Create particle emitter
+                let bulletImpactEmitter = new Emitter(
+                    Game.containers[indexOfContainer],
+                    [
+                        PIXI.loader.resources['./images/particles/particle.png'].texture
+                    ],
+                    PIXI.loader.resources['./json/blood.json'].data
+                )
+                let index2 = Game.emitters.indexOf(bulletImpactEmitter)
+                Game.emitters[index2].start(100, true)
 
                 // Sound effect
                 let random = Math.floor(Math.random() * Math.floor(Game.sounds.bulletImpactBody.length))
                 Game.sounds.bulletImpactBody[random].play()
+
+                // Remove bullet
+                this.kill()
             }
         }
 

@@ -73,4 +73,11 @@ class Game {
 			Game.containers.splice(index, 1);
 		}
 	}
+
+	public static removeEntity(e: Entity): void {
+		let index = Game.entities.indexOf(e)
+		if (index !== -1) {
+			Game.entities.splice(index, 1);
+		}
+	}
 }

@@ -26,6 +26,7 @@ var Init = (function () {
             .add('./json/gunShot.json')
             .add('./json/bulletImpact.json')
             .add('./json/bulletTrail.json')
+            .add('./json/blood.json')
             .add('./maps/01_empty.tmx')
             .add('./maps/01_intro.tmx')
             .load(function () { return _this.onLoaderComplete(); });
@@ -182,6 +183,12 @@ var Game = (function () {
             Game.containers.splice(index, 1);
         }
     };
+    Game.removeEntity = function (e) {
+        var index = Game.entities.indexOf(e);
+        if (index !== -1) {
+            Game.entities.splice(index, 1);
+        }
+    };
     Game.canvasWidth = 1600;
     Game.canvasHeight = 896;
     Game.BUMP = new Bump(PIXI);
@@ -298,6 +305,7 @@ var Entity = (function (_super) {
     };
     Entity.prototype.kill = function () {
         _super.prototype.kill.call(this);
+        Game.removeEntity(this);
         if (this.gun instanceof Gun) {
             this.gun.remove();
         }
@@ -320,6 +328,9 @@ var EnemySoldier = (function (_super) {
     }
     EnemySoldier.prototype.update = function () {
         _super.prototype.update.call(this);
+        this.updateAim();
+    };
+    EnemySoldier.prototype.updateAim = function () {
     };
     return EnemySoldier;
 }(Entity));
@@ -463,9 +474,21 @@ var Bullet = (function (_super) {
                     return;
                 }
                 collisionCheck.health -= this.damage;
-                this.kill();
+                var bulletImpactContainer = new PIXI.Container();
+                bulletImpactContainer.x = this.position.x;
+                bulletImpactContainer.y = this.position.y;
+                bulletImpactContainer.rotation = this.rotation;
+                Game.containers.push(bulletImpactContainer);
+                var indexOfContainer = Game.containers.indexOf(bulletImpactContainer);
+                Game.PIXI.stage.addChild(Game.containers[indexOfContainer]);
+                var bulletImpactEmitter = new Emitter(Game.containers[indexOfContainer], [
+                    PIXI.loader.resources['./images/particles/particle.png'].texture
+                ], PIXI.loader.resources['./json/blood.json'].data);
+                var index2 = Game.emitters.indexOf(bulletImpactEmitter);
+                Game.emitters[index2].start(100, true);
                 var random = Math.floor(Math.random() * Math.floor(Game.sounds.bulletImpactBody.length));
                 Game.sounds.bulletImpactBody[random].play();
+                this.kill();
             }
         }
     };
@@ -640,8 +663,15 @@ var Pistol = (function (_super) {
             angle: 19.20,
             distance: 27
         };
+        _this.visionLine = new PIXI.Graphics;
         _this.shootingSound = Game.sounds.pistol1;
         _this.reloadingSound = Game.sounds.pistolReload;
+        _this.visionLine = new PIXI.Graphics;
+        _this.visionLine.beginFill(0xd63600);
+        _this.visionLine.drawRect(0, 0, 1, Game.canvasWidth);
+        _this.visionLine.endFill();
+        _this.visionLine.alpha = 0.2;
+        Game.PIXI.stage.addChild(_this.visionLine);
         return _this;
     }
     Pistol.prototype.shoot = function (targetPosition) {
@@ -651,9 +681,19 @@ var Pistol = (function (_super) {
         _super.prototype.update.call(this);
         if (this.subject instanceof Entity) {
         }
-        this.gunShotContainer.x = this.subject.sprite.x + Math.cos(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance;
-        this.gunShotContainer.y = this.subject.sprite.y + Math.sin(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance;
+        var barrelPosition = this.getBarrelPosition();
+        this.visionLine.position.x = barrelPosition.x;
+        this.visionLine.position.y = barrelPosition.y;
+        this.visionLine.rotation = Util.toRadiant(Util.toDegrees(this.subject.sprite.rotation) - 90);
+        this.gunShotContainer.x = barrelPosition.x;
+        this.gunShotContainer.y = barrelPosition.y;
         this.gunShotContainer.rotation = this.subject.sprite.rotation - 30;
+    };
+    Pistol.prototype.getBarrelPosition = function () {
+        return {
+            x: this.subject.sprite.x + Math.cos(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance,
+            y: this.subject.sprite.y + Math.sin(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance
+        };
     };
     return Pistol;
 }(Gun));

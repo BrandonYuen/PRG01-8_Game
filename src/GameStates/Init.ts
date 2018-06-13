@@ -18,6 +18,7 @@ class Init implements GameState {
 			.add('./json/gunShot.json')
 			.add('./json/bulletImpact.json')
 			.add('./json/bulletTrail.json')
+			.add('./json/blood.json')
 			// TileMaps
 			.add('./maps/01_empty.tmx')
 			.add('./maps/01_intro.tmx')

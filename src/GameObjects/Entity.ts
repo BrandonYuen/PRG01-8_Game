@@ -55,6 +55,7 @@ abstract class Entity extends GameObject implements Subject {
     
     public kill(): void {
         super.kill()
+        Game.removeEntity(this)
         if (this.gun instanceof Gun) {
             this.gun.remove()
         }
