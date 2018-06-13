@@ -48,11 +48,8 @@ class HealthBar extends PIXI.Container implements Observer {
         this.removeChild(this.healthObject)
 
         // Update health object (green)
-        console.log('Health of player: ', this.entity.health)
         let percHealth = this.entity.health / this.entity.maxHealth
         let correctWidth = this.options.width * percHealth
-
-        console.log('correctWidth: ',correctWidth)
         
         this.healthObject = new PIXI.Graphics
 		this.healthObject.beginFill(0x00c62e)

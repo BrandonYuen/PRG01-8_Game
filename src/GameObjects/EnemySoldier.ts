@@ -1,4 +1,4 @@
-/// <reference path="../Strategies/Walking.ts"/>
+/// <reference path="../Strategies/MovingState.ts"/>
 /// <reference path="Entity.ts"/>
 class EnemySoldier extends Entity {
 
@@ -9,6 +9,7 @@ class EnemySoldier extends Entity {
 		super(stage, texture)
 
 		this.gun = new Pistol(this)
+		this.gun.visionLine.visible = false
 
 		// Position
 		this.sprite.x = Game.canvasWidth - 300
@@ -20,10 +21,28 @@ class EnemySoldier extends Entity {
     public update(): void {
 		super.update()
 		this.updateAim()
+
+		let randomNumber = Math.random() * 100 
+		if (randomNumber < 2) {
+			this.shoot()
+		}
+	}
+
+	private shoot(){  
+		if (this.gun instanceof Gun) {
+			this.gun.shoot()
+			if (this.gun.ammo <= 0) this.gun.reload()
+		}
 	}
 	
 	private updateAim(): void {
+		let angle = Util.rotateToPoint(
+			Game.entities[0].sprite.x, 
+			Game.entities[0].sprite.y, 
+			this.sprite.x, 
+			this.sprite.y
+		)
 
-		// TODO: update aim use visionLine of GUN
+		this.sprite.rotation = Util.toRadiant(Util.correctDegrees(Util.toDegrees(angle) - 1))
 	}
 }

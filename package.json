@@ -32,7 +32,8 @@
 		"express": "^4.16.3",
 		"module-alias": "^2.0.6",
 		"pixi-particles": "^3.0.0",
-		"pixi-tiledmap": "^1.9.3"
+		"pixi-tiledmap": "^1.9.3",
+		"yy-intersects": "^1.0.8"
 	},
 	"devDependencies": {
 		"@types/pixi.js": "^4.7.3",

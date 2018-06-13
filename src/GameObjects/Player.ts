@@ -1,4 +1,4 @@
-/// <reference path="../Strategies/Walking.ts"/>
+/// <reference path="../Strategies/MovingState.ts"/>
 /// <reference path="Entity.ts"/>
 
 class Player extends Entity {
@@ -38,7 +38,7 @@ class Player extends Entity {
 
 	private shoot(){  
 		if (this.gun instanceof Gun) {
-			this.gun.shoot({x: Game.PIXI.renderer.plugins.interaction.mouse.global.x, y: Game.PIXI.renderer.plugins.interaction.mouse.global.y})
+			this.gun.shoot()
 		}
 	}
 
@@ -71,6 +71,14 @@ class Player extends Entity {
 			//R; Reload
 			case 82:
 				this.reloadGun()
+				break
+			//SHIFT; Run
+			case 16:
+				if (key_state) {
+					this.movement.state = 'running'
+				} else {
+					this.movement.state = 'walking'
+				}
 				break
 		}
 	}

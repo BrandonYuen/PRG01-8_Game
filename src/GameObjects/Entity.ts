@@ -9,9 +9,10 @@ abstract class Entity extends GameObject implements Subject {
     public reload: boolean = false
 	public x_speed: number = 0
 	public y_speed: number = 0
-    public movement:Movement = new Walking(this)
+    public movement:Movement = new MovingState(this)
     public baseSpeed:number = 0
-    public actionBar:ActionBar = new ActionBar(this)
+    public reloadBar:ActionBar = new ActionBar(this, 100, 20, 25)
+    public ammoBar:ActionBar = new ActionBar(this, 50, 20, -75)
     public healthBar:HealthBar = new HealthBar(this)
     public maxHealth:number = 100
     private _health:number = this.maxHealth
@@ -60,6 +61,7 @@ abstract class Entity extends GameObject implements Subject {
             this.gun.remove()
         }
         this.healthBar.remove()
-        this.actionBar.remove()
+        this.reloadBar.remove()
+        this.ammoBar.remove()
     }
 }

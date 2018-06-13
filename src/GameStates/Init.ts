@@ -124,16 +124,42 @@ class Init implements GameState {
 		// Add tiled map as pixi objects to stage
 		Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
 
-		// Save all walls to alias
-		for (let w of Game.tiledMap.children[0].children[2].children) {
-			Game.walls.push(w)
+		// Load all objects from tilemap
+		for (let layer of Game.tiledMap.children[0].children) {
+			console.log('loading layer ('+layer.name+')')
+			switch (layer.name) {
+				case 'Player':
+					for (let p of layer.children) {
+						let player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/manBlue_gun.png'].texture)
+						Game.entities.push(player)
+						console.log('Placed player with index: ', Game.entities.indexOf(player))
+						Game.entities[Game.entities.indexOf(player)].sprite.x = p.x + 32
+						Game.entities[Game.entities.indexOf(player)].sprite.y = p.y + 32
+					} for (let p of layer.children) {
+						// Remove dummy object
+						p.visible = false
+					}
+					break
+				case 'Enemies':
+					console.log('Amount Enemies: ', layer.children.length)
+					for (let e of layer.children) {
+						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier1_gun.png'].texture)
+						Game.entities.push(enemy)
+						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
+						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
+						Game.entities[Game.entities.indexOf(enemy)].sprite.y = e.y + 32
+					} for (let e of layer.children) {
+						// Remove dummy object
+						e.visible = false
+					}
+					break
+				case 'Walls':
+					for (let w of layer.children) {
+						Game.walls.push(w)
+					}
+					break
+			}
 		}
-
-		// Add player TODO: get location from tilemap
-        Game.entities.push(Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/manBlue_gun.png'].texture))
-		
-		// Add enemy TODO: get location from tilemap
-        Game.entities.push(new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier1_gun.png'].texture))
 
         // Set gamestate to complete
         this.complete = true

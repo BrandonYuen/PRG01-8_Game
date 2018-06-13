@@ -8,18 +8,18 @@ class Util {
 		return angle;
 	}
 
-	static checkCollisionWithWalls(object: any){  
-		let colliding = false;
+	static checkCollisionWithWalls(object: any, returnSprite:boolean=false){  
+		let colliding:any = false;
 
 		// Check all walls for collision with object
 		for (let w of Game.walls) {
 			if (Game.BUMP.hitTestRectangle(object, w)) {
-				colliding = true
-				break
+				if (returnSprite) {colliding=w} else {colliding=true}
+				console.log('Colliding')
 			}
 		}
 
-		return colliding;
+		return colliding
 	}
 
 	static checkCollisionWithEntities(object: any){  

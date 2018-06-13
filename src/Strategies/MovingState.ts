@@ -1,10 +1,39 @@
-class Walking implements Movement, Observer {
+class MovingState implements Movement, Observer {
     public subject:Entity
-    speedMultiplier: number = 1
+    public speedMultiplier: number = 1
+    private options = {
+        runningSpeedMultiplier: 1.8,
+        walkingSpeedMultiplier: 1
+    }
+    private _state:string = 'walking'
 
     constructor(subject: Entity) {
 		this.subject = subject
-		subject.registerObserver(this)
+        subject.registerObserver(this)
+    }
+
+    public set state(state: string) {
+        if (this._state == state) return
+        switch (state) {
+            case 'walking': 
+                this.speedMultiplier = this.options.walkingSpeedMultiplier
+                this._state = state
+                console.log(this.speedMultiplier)
+                break
+            case 'running': 
+                this.speedMultiplier = this.options.runningSpeedMultiplier
+                this._state = state
+                console.log(this.speedMultiplier)
+                break
+        }
+    }
+
+    public get state(): string {
+        return this._state
+    }
+
+    public switchState(state: string): void {
+
     }
 
     update(): void {
