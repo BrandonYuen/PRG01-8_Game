@@ -1,10 +1,10 @@
 
 class Bullet extends PIXI.Graphics {
     private speed = 1 // Default speed
-    public maxLifetime = 150 //Max life time in frames (60 frames = 1 second)
-    public bulletTrailContainer:PIXI.Container = new PIXI.Container
-    public bulletTrailEmitter:any
-    public lifeTime = 0
+    private maxLifetime = 150 //Max life time in frames (60 frames = 1 second)
+    private bulletTrailContainer:PIXI.Container = new PIXI.Container
+    private bulletTrailEmitter:any
+    private lifeTime = 0
     private damage: number
     private shooter:GameObject
 

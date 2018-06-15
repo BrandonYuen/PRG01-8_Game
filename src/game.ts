@@ -80,4 +80,13 @@ class Game {
 			Game.entities.splice(index, 1);
 		}
 	}
+
+	public static get player(): any {
+		for (let e of Game.entities) {
+			if (e instanceof Player) {
+				return e as Player
+			}
+		}
+		return null
+	}
 }

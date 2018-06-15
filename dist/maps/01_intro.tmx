@@ -10,27 +10,27 @@
  </layer>
  <layer name="Floors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgF5IIUIE5CopNobEcCDe1A9gMhe0hVz8CA8ANMXwIR6hPQ7EkhoAfdfFLDKoEIdyG7jxwAi0daggQ62EEPfwxnAACcshIH
+   eJxjYBgF5IIUIE5CopNobEcCDe1A9gM+e1JIVA8DMD/A9CUQUAtTg2xPCgE70M0nNawSCLgL3Y3kAFg80hIk0MEOevhjOAMAAEcSzQ==
   </data>
  </layer>
  <layer name="Doors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFowAT7GAcaBcMbnB5hIcPyP8jPQwoAQBh3gM2
+   eJxjYBgFowAT7GDELr4dhzg1AT3soBRcHgJupCUA+X+khwElAADRuASm
   </data>
  </layer>
  <layer name="Player" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBhe4DDjQLtgFIyCUTAK8AMAlkQAxQ==
+   eJxjYBiZwJZxoF0wCkbBKBipAAAchgA/
   </data>
  </layer>
  <layer name="Enemies" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFlAI7xoF2AX0Bpf4daeE1CoYGoGe6BAC0qgD9
+   eJxjYBgFQwXYMQ5ec2nltlEwCoYjAACXIwC+
   </data>
  </layer>
  <layer name="Walls" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJzjZ2RgEKQhFgBiHSCmJdBBs6MMiCuw4HIq2jEZhzpc4tS0owaHOC5/I/udWDtwAXzqYXLE2jGNDnbgEp/IgDtt4LIDpqcayp8O5U/C415cbsFlB6WAHnbUYGFT2w5sgF52aNG4TNQGYgACIB++
+   eJzjZ2RgEKQhFgBiHSCmJdBBs6MMiCuw4HIq2jEZhzpc4tS0owaH+HQG7P5G9juxdpADYGYRa8c0OtiBSxw9rJDTBi47JkLVVqOZMYlEt+Ozg1JADztqsLCpbQc2QC87tGhcJmoDMQD+zB6/
   </data>
  </layer>
 </map>

@@ -19,8 +19,12 @@ var Init = (function () {
         this.complete = false;
         console.log('Loading all assets...');
         PIXI.loader
-            .add('./images/sprites/manBlue_gun.png')
-            .add('./images/sprites/soldier1_gun.png')
+            .add('./images/sprites/player.png')
+            .add('./images/sprites/soldier.png')
+            .add('./images/sprites/player_pistol.png')
+            .add('./images/sprites/soldier_pistol.png')
+            .add('./images/sprites/player_machinegun.png')
+            .add('./images/sprites/soldier_machinegun.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
             .add('./json/gunShot.json')
@@ -30,13 +34,45 @@ var Init = (function () {
             .add('./maps/01_empty.tmx')
             .add('./maps/01_intro.tmx')
             .load(function () { return _this.onLoaderComplete(); });
-        Game.sounds.pistol1 = new Howl({
+        Game.sounds.pistol = [];
+        Game.sounds.pistol[0] = new Howl({
             src: ['./sounds/pistolShot1.mp3'],
             volume: 0.5,
             preload: true
         });
-        Game.sounds.pistol2 = new Howl({
+        Game.sounds.pistol[1] = new Howl({
             src: ['./sounds/pistolShot2.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun = [];
+        Game.sounds.machinegun[0] = new Howl({
+            src: ['./sounds/machinegunShot1.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun[1] = new Howl({
+            src: ['./sounds/machinegunShot2.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun[2] = new Howl({
+            src: ['./sounds/machinegunShot3.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun[3] = new Howl({
+            src: ['./sounds/machinegunShot4.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun[4] = new Howl({
+            src: ['./sounds/machinegunShot5.mp3'],
+            volume: 0.5,
+            preload: true
+        });
+        Game.sounds.machinegun[5] = new Howl({
+            src: ['./sounds/machinegunShot6.mp3'],
             volume: 0.5,
             preload: true
         });
@@ -132,7 +168,7 @@ var Init = (function () {
                 case 'Player':
                     for (var _b = 0, _c = layer.children; _b < _c.length; _b++) {
                         var p = _c[_b];
-                        var player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/manBlue_gun.png'].texture);
+                        var player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture);
                         Game.entities.push(player);
                         console.log('Placed player with index: ', Game.entities.indexOf(player));
                         Game.entities[Game.entities.indexOf(player)].sprite.x = p.x + 32;
@@ -147,7 +183,7 @@ var Init = (function () {
                     console.log('Amount Enemies: ', layer.children.length);
                     for (var _f = 0, _g = layer.children; _f < _g.length; _f++) {
                         var e = _g[_f];
-                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier1_gun.png'].texture);
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture);
                         Game.entities.push(enemy);
                         console.log('Placed enemy with index: ', Game.entities.indexOf(enemy));
                         Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32;
@@ -169,10 +205,7 @@ var Init = (function () {
         this.complete = true;
         Game.screen = new StartScreen();
     };
-    Init.prototype.update = function () {
-        if (this.complete) {
-        }
-    };
+    Init.prototype.update = function () { };
     return Init;
 }());
 var Game = (function () {
@@ -224,6 +257,19 @@ var Game = (function () {
             Game.entities.splice(index, 1);
         }
     };
+    Object.defineProperty(Game, "player", {
+        get: function () {
+            for (var _i = 0, _a = Game.entities; _i < _a.length; _i++) {
+                var e = _a[_i];
+                if (e instanceof Player) {
+                    return e;
+                }
+            }
+            return null;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Game.canvasWidth = 1600;
     Game.canvasHeight = 896;
     Game.BUMP = new Bump(PIXI);
@@ -306,13 +352,20 @@ var MovingState = (function () {
 }());
 var GameObject = (function () {
     function GameObject(stage, texture) {
-        this.sprite = new PIXI.Sprite();
+        this._sprite = new PIXI.Sprite();
         stage.addChild(this.sprite);
         this.sprite.texture = texture;
     }
     GameObject.prototype.kill = function () {
         Game.PIXI.stage.removeChild(this.sprite);
     };
+    Object.defineProperty(GameObject.prototype, "sprite", {
+        get: function () {
+            return this._sprite;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return GameObject;
 }());
 var Entity = (function (_super) {
@@ -328,13 +381,15 @@ var Entity = (function (_super) {
         _this.x_speed = 0;
         _this.y_speed = 0;
         _this.movement = new MovingState(_this);
-        _this.baseSpeed = 0;
-        _this.reloadBar = new ActionBar(_this, 100, 20, 25);
-        _this.ammoBar = new ActionBar(_this, 50, 20, -75);
-        _this.healthBar = new HealthBar(_this);
-        _this.maxHealth = 100;
-        _this._health = _this.maxHealth;
+        _this._baseSpeed = 0;
+        _this._reloadBar = new ActionBar(_this, 100, 20, 25);
+        _this._ammoBar = new ActionBar(_this, 50, 20, -75);
+        _this._healthBar = new HealthBar(_this);
+        _this._maxHealth = 100;
+        _this._health = _this._maxHealth;
         _this.gun = null;
+        _this.visionLine = new VisionLine(_this);
+        _this.visionLine.visible = false;
         _this.update();
         return _this;
     }
@@ -363,11 +418,47 @@ var Entity = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Entity.prototype, "maxHealth", {
+        get: function () {
+            return this._maxHealth;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Entity.prototype, "baseSpeed", {
+        get: function () {
+            return this._baseSpeed;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Entity.prototype, "reloadBar", {
+        get: function () {
+            return this._reloadBar;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Entity.prototype, "healthBar", {
+        get: function () {
+            return this._healthBar;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Entity.prototype, "ammoBar", {
+        get: function () {
+            return this._ammoBar;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Entity.prototype.update = function () {
         for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
             var observer = _a[_i];
             observer.update();
         }
+        this.visionLine.update();
     };
     Entity.prototype.kill = function () {
         _super.prototype.kill.call(this);
@@ -385,9 +476,8 @@ var EnemySoldier = (function (_super) {
     __extends(EnemySoldier, _super);
     function EnemySoldier(stage, texture) {
         var _this = _super.call(this, stage, texture) || this;
-        _this.baseSpeed = 0.25;
+        _this._baseSpeed = 0.25;
         _this.gun = new Pistol(_this);
-        _this.gun.visionLine.visible = false;
         _this.sprite.x = Game.canvasWidth - 300;
         _this.sprite.y = Game.canvasHeight / 2;
         _this.sprite.anchor.x = 0.5;
@@ -397,10 +487,43 @@ var EnemySoldier = (function (_super) {
     EnemySoldier.prototype.update = function () {
         _super.prototype.update.call(this);
         this.updateAim();
-        var randomNumber = Math.random() * 100;
-        if (randomNumber < 2) {
-            this.shoot();
+        if (this.gun instanceof Gun) {
+            if (this.checkVisionOnPlayer()) {
+                this.gun.visionLine.alpha = 0.7;
+                var randomNumber = Math.random() * 100;
+                if (randomNumber < 5) {
+                    this.shoot();
+                }
+            }
+            else {
+                this.gun.visionLine.alpha = 0.2;
+            }
         }
+    };
+    EnemySoldier.prototype.checkVisionOnPlayer = function () {
+        var vision = false;
+        var player = Game.player;
+        if (this.gun instanceof Gun && player != null) {
+            var visionLineEndPoint = this.gun.visionLine.getEndPoint();
+            var barrelPosition = this.gun.getBarrelPosition();
+            var line = {
+                first: {
+                    x: barrelPosition.x,
+                    y: barrelPosition.y
+                },
+                second: {
+                    x: visionLineEndPoint.x,
+                    y: visionLineEndPoint.y
+                }
+            };
+            var wallPoint = Util.checkCollisionLineWalls(line);
+            if (wallPoint != false) {
+                if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [this.sprite.x, this.sprite.y])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     };
     EnemySoldier.prototype.shoot = function () {
         if (this.gun instanceof Gun) {
@@ -411,7 +534,7 @@ var EnemySoldier = (function (_super) {
     };
     EnemySoldier.prototype.updateAim = function () {
         var angle = Util.rotateToPoint(Game.entities[0].sprite.x, Game.entities[0].sprite.y, this.sprite.x, this.sprite.y);
-        this.sprite.rotation = Util.toRadiant(Util.correctDegrees(Util.toDegrees(angle) - 1));
+        this.sprite.rotation = angle;
     };
     return EnemySoldier;
 }(Entity));
@@ -419,11 +542,14 @@ var Player = (function (_super) {
     __extends(Player, _super);
     function Player(stage, texture) {
         var _this = _super.call(this, stage, texture) || this;
-        _this.baseSpeed = 0.25;
-        _this.gun = new Pistol(_this);
+        _this.mouseDown = false;
+        _this._baseSpeed = 0.25;
+        _this.gun = new MachineGun(_this);
+        _this.gun.visionLine.alpha = 0;
         window.addEventListener("keydown", function (e) { return _this.keyListener(e); });
         window.addEventListener("keyup", function (e) { return _this.keyListener(e); });
-        Game.PIXI.stage.on("mousedown", function () { return _this.shoot(); });
+        Game.PIXI.stage.on("mousedown", function (e) { return _this.mouseListener(e); });
+        Game.PIXI.stage.on("mouseup", function (e) { return _this.mouseListener(e); });
         _this.sprite.x = 300;
         _this.sprite.y = Game.canvasHeight / 2;
         _this.sprite.anchor.x = 0.5;
@@ -439,6 +565,12 @@ var Player = (function (_super) {
     Player.prototype.update = function () {
         _super.prototype.update.call(this);
         this.updateAim();
+        if (this.mouseDown) {
+            this.shoot();
+            if (this.gun instanceof Pistol) {
+                this.mouseDown = false;
+            }
+        }
     };
     Player.prototype.shoot = function () {
         if (this.gun instanceof Gun) {
@@ -449,6 +581,9 @@ var Player = (function (_super) {
         if (this.gun instanceof Gun) {
             this.gun.reload();
         }
+    };
+    Player.prototype.mouseListener = function (event) {
+        this.mouseDown = (event.type == "mousedown") ? true : false;
     };
     Player.prototype.keyListener = function (event) {
         var key_state = (event.type == "keydown") ? true : false;
@@ -631,80 +766,88 @@ var Emitter = (function (_super) {
 }(PIXI.particles.Emitter));
 var VisionLine = (function (_super) {
     __extends(VisionLine, _super);
-    function VisionLine(gunObject) {
+    function VisionLine(subject) {
         var _this = _super.call(this) || this;
-        _this.gunObject = gunObject;
+        _this.subject = subject;
         _this.beginFill(0xd63600);
         _this.drawRect(0, 0, 1, Game.canvasWidth);
         _this.endFill();
-        _this.alpha = 0.2;
+        _this.alpha = 1;
         Game.PIXI.stage.addChild(_this);
         return _this;
     }
     VisionLine.prototype.update = function () {
-        var barrelPosition = this.gunObject.getBarrelPosition();
-        this.position.x = barrelPosition.x;
-        this.position.y = barrelPosition.y;
-        this.rotation = Util.toRadiant(Util.toDegrees(this.gunObject.subject.sprite.rotation) - 90);
+        var beginPosition = { x: 0, y: 0 };
+        var rotation = 0;
+        if (this.subject instanceof Entity) {
+            beginPosition = { x: this.subject.sprite.x, y: this.subject.sprite.y };
+            rotation = Util.toRadiant(Util.toDegrees(this.subject.sprite.rotation) - 90);
+        }
+        else if (this.subject instanceof Gun) {
+            beginPosition = this.subject.getBarrelPosition();
+            rotation = Util.toRadiant(Util.toDegrees(this.subject.subject.sprite.rotation) - 91);
+            this.height = this.getMaxDistance();
+        }
+        this.position.x = beginPosition.x;
+        this.position.y = beginPosition.y;
+        this.rotation = rotation;
+    };
+    VisionLine.prototype.getEndPoint = function () {
+        if (this.subject instanceof Gun) {
+            return {
+                x: this.subject.subject.sprite.x + Math.cos(Util.toRadiant(Util.toDegrees(this.rotation) + 91)) * Game.canvasWidth,
+                y: this.subject.subject.sprite.y + Math.sin(Util.toRadiant(Util.toDegrees(this.rotation) + 91)) * Game.canvasWidth
+            };
+        }
+        else if (this.subject instanceof Entity) {
+            return {
+                x: this.subject.sprite.x + Math.cos(Util.toRadiant(Util.toDegrees(this.rotation) + 90)) * Game.canvasWidth,
+                y: this.subject.sprite.y + Math.sin(Util.toRadiant(Util.toDegrees(this.rotation) + 90)) * Game.canvasWidth
+            };
+        }
+    };
+    VisionLine.prototype.getMaxDistance = function () {
+        var visionLineEndPoint = { x: 0, y: 0 };
+        var beginPosition = { x: 0, y: 0 };
+        if (this.subject instanceof Gun) {
+            visionLineEndPoint = this.getEndPoint();
+            beginPosition = this.subject.getBarrelPosition();
+        }
+        else if (this.subject instanceof Player) {
+            visionLineEndPoint = this.getEndPoint();
+            beginPosition = {
+                x: this.subject.sprite.x,
+                y: this.subject.sprite.y
+            };
+        }
+        var line = {
+            first: {
+                x: beginPosition.x,
+                y: beginPosition.y
+            },
+            second: {
+                x: visionLineEndPoint.x,
+                y: visionLineEndPoint.y
+            }
+        };
+        var player = Game.player;
+        if (player instanceof Player && this.subject instanceof Gun) {
+            if (this.subject.subject instanceof EnemySoldier) {
+                if (this.subject.subject.checkVisionOnPlayer()) {
+                    return math.distance([beginPosition.x, beginPosition.y], [Game.player.sprite.x, Game.player.sprite.y]);
+                }
+            }
+        }
+        var wallPoint = Util.checkCollisionLineWalls(line);
+        if (wallPoint != false) {
+            return wallPoint.shortestDistance;
+        }
+        return -1;
     };
     VisionLine.prototype.remove = function () {
         Game.PIXI.stage.removeChild(this);
     };
     return VisionLine;
-}(PIXI.Graphics));
-var VisionLine2 = (function (_super) {
-    __extends(VisionLine2, _super);
-    function VisionLine2(gunObject) {
-        var _this = _super.call(this) || this;
-        _this.maxHeigth = Game.canvasWidth;
-        _this.gunObject = gunObject;
-        _this.beginFill(0xd63600);
-        _this.drawRect(0, 0, 1, Game.canvasWidth);
-        _this.endFill();
-        _this.alpha = 0.2;
-        Game.PIXI.stage.addChild(_this);
-        return _this;
-    }
-    VisionLine2.prototype.update = function () {
-        var barrelPosition = this.gunObject.getBarrelPosition();
-        this.position.x = barrelPosition.x;
-        this.position.y = barrelPosition.y;
-        this.rotation = Util.toRadiant(Util.toDegrees(this.gunObject.subject.sprite.rotation) - 90);
-    };
-    VisionLine2.prototype.remove = function () {
-        Game.PIXI.stage.removeChild(this);
-    };
-    VisionLine2.prototype.checkVision = function () {
-        var colliding = false;
-        var x = 0;
-        var y = 0;
-        var a = Game.entities[0].sprite.x - this.position.x;
-        var b = Game.entities[0].sprite.y - this.position.y;
-        var distanceToPlayer = Math.sqrt(a * a + b * b);
-        for (var i = 0; i < distanceToPlayer; i = i + 5) {
-            x = this.x + Math.cos(Util.toRadiant(Util.toDegrees(this.rotation) + 90)) * i;
-            y = this.y + Math.sin(Util.toRadiant(Util.toDegrees(this.rotation) + 90)) * i;
-            for (var _i = 0, _a = Game.walls; _i < _a.length; _i++) {
-                var w = _a[_i];
-                if (Game.BUMP.hitTestPoint({ x: x, y: y }, w)) {
-                    var a_1 = w.x - this.position.x;
-                    var b_1 = w.y - this.position.y;
-                    var distanceToWall = Math.sqrt(a_1 * a_1 + b_1 * b_1);
-                    this.height = distanceToWall;
-                    return false;
-                }
-            }
-            for (var _b = 0, _c = Game.entities; _b < _c.length; _b++) {
-                var e = _c[_b];
-                if (this.gunObject.subject != e)
-                    if (Game.BUMP.hitTestPoint({ x: x, y: y }, e.sprite)) {
-                        return e;
-                    }
-            }
-        }
-        return colliding;
-    };
-    return VisionLine2;
 }(PIXI.Graphics));
 var Util = (function () {
     function Util() {
@@ -727,7 +870,6 @@ var Util = (function () {
                 else {
                     colliding = true;
                 }
-                console.log('Colliding');
             }
         }
         return colliding;
@@ -739,6 +881,134 @@ var Util = (function () {
             if (Game.BUMP.hit(object, e.sprite)) {
                 colliding = e;
                 break;
+            }
+        }
+        return colliding;
+    };
+    Util.checkCollisionLineRectangle = function (line1, rec) {
+        var recLines = [
+            {
+                first: {
+                    x: rec.x,
+                    y: rec.y
+                },
+                second: {
+                    x: rec.x,
+                    y: rec.y + rec.heigth
+                }
+            },
+            {
+                first: {
+                    x: rec.x + rec.width,
+                    y: rec.y
+                },
+                second: {
+                    x: rec.x + rec.width,
+                    y: rec.y + rec.heigth
+                }
+            },
+            {
+                first: {
+                    x: rec.x,
+                    y: rec.y
+                },
+                second: {
+                    x: rec.x + rec.width,
+                    y: rec.y
+                }
+            },
+            {
+                first: {
+                    x: rec.x,
+                    y: rec.y + rec.heigth
+                },
+                second: {
+                    x: rec.x + rec.width,
+                    y: rec.y + rec.heigth
+                }
+            }
+        ];
+        var collidingSides = [];
+        var shortestSidePosition = false;
+        for (var _i = 0, recLines_1 = recLines; _i < recLines_1.length; _i++) {
+            var side = recLines_1[_i];
+            var result = Util.checkLineIntersection(line1.first.x, line1.first.y, line1.second.x, line1.second.y, side.first.x, side.first.y, side.second.x, side.second.y);
+            if (result.onLine1 == true && result.onLine2 == true && result.x != null && result.y != null) {
+                collidingSides.push({
+                    x: result.x,
+                    y: result.y
+                });
+            }
+        }
+        if (collidingSides.length > 1) {
+            shortestSidePosition = collidingSides[0];
+            shortestSidePosition.distance = math.distance([collidingSides[0].x, collidingSides[0].y], [line1.first.x, line1.first.y]);
+            for (var i = 1; i < collidingSides.length; i++) {
+                var side = collidingSides[i];
+                var newDistance = math.distance([side.x, side.y], [line1.first.x, line1.first.y]);
+                if (newDistance < shortestSidePosition.distance) {
+                    shortestSidePosition = side;
+                    shortestSidePosition.distance = newDistance;
+                }
+            }
+        }
+        return shortestSidePosition;
+    };
+    Util.checkLineIntersection = function (line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
+        var denominator, a, b, numerator1, numerator2, result = {
+            x: null,
+            y: null,
+            onLine1: false,
+            onLine2: false
+        };
+        denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
+        if (denominator == 0) {
+            return result;
+        }
+        a = line1StartY - line2StartY;
+        b = line1StartX - line2StartX;
+        numerator1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b);
+        numerator2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b);
+        a = numerator1 / denominator;
+        b = numerator2 / denominator;
+        result.x = line1StartX + (a * (line1EndX - line1StartX));
+        result.y = line1StartY + (a * (line1EndY - line1StartY));
+        if (a > 0 && a < 1) {
+            result.onLine1 = true;
+        }
+        if (b > 0 && b < 1) {
+            result.onLine2 = true;
+        }
+        return result;
+    };
+    Util.checkCollisionLineWalls = function (line) {
+        var colliding = false;
+        var collidingPoints = [];
+        for (var _i = 0, _a = Game.walls; _i < _a.length; _i++) {
+            var w = _a[_i];
+            var rec = {
+                x: w.position.x,
+                y: w.position.y,
+                width: w.width,
+                heigth: w.height
+            };
+            var checkWall = Util.checkCollisionLineRectangle(line, rec);
+            if (checkWall != false) {
+                collidingPoints.push(checkWall);
+            }
+        }
+        if (collidingPoints.length > 0) {
+            colliding = collidingPoints[0];
+            var shortestDistance = math.distance([collidingPoints[0].x, collidingPoints[0].y], [line.first.x, line.first.y]);
+            colliding.shortestDistance = shortestDistance;
+            for (var i = 0; i < collidingPoints.length; i++) {
+                var point = collidingPoints[i];
+                var newDistance = math.distance([point.x, point.y], [line.first.x, line.first.y]);
+                if (newDistance < shortestDistance) {
+                    colliding = point;
+                    shortestDistance = newDistance;
+                    colliding.shortestDistance = shortestDistance;
+                }
             }
         }
         return colliding;
@@ -765,6 +1035,7 @@ var Util = (function () {
 }());
 var Gun = (function () {
     function Gun(subject) {
+        var _this = this;
         this._maxAmmo = 0;
         this._ammo = 0;
         this._damage = 0;
@@ -784,6 +1055,9 @@ var Gun = (function () {
             PIXI.loader.resources['./images/particles/particle.png'].texture,
             PIXI.loader.resources['./images/particles/Fire.png'].texture
         ], PIXI.loader.resources['./json/gunShot.json'].data);
+        setTimeout(function () {
+            _this.updateAmmoBar();
+        }, 500);
     }
     Object.defineProperty(Gun.prototype, "damage", {
         get: function () {
@@ -850,6 +1124,10 @@ var Gun = (function () {
         else if (this.ammo <= 0) {
             if (this.subject instanceof Player)
                 Game.sounds.emptyMagazine.play();
+            this.shooting = true;
+            setTimeout(function () {
+                _this.shooting = false;
+            }, this.shootingDelay * 1000);
             return;
         }
         this.shootingSound.play();
@@ -858,7 +1136,8 @@ var Gun = (function () {
         setTimeout(function () {
             _this.shooting = false;
         }, this.shootingDelay * 1000);
-        var perfectAngle = Util.rotateToPoint(this.subject.sprite.x + Math.cos(Util.toRadiant(Util.toDegrees(this.visionLine.rotation) + 95.5)) * 100, this.subject.sprite.y + Math.sin(Util.toRadiant(Util.toDegrees(this.visionLine.rotation) + 95.5)) * 100, this.gunShotContainer.x, this.gunShotContainer.y);
+        var visionLineEndPoint = this.visionLine.getEndPoint();
+        var perfectAngle = Util.rotateToPoint(visionLineEndPoint.x, visionLineEndPoint.y, this.gunShotContainer.x, this.gunShotContainer.y);
         var shootingSpread = this.minShootingSpread + this.shootingSpread * (this.subject.x_speed + this.subject.y_speed);
         var randomAngleAddition = Math.floor(Math.random() * shootingSpread) - shootingSpread / 2;
         var randomAngle = Util.toRadiant(Util.correctDegrees(Util.toDegrees(perfectAngle) + randomAngleAddition));
@@ -873,29 +1152,82 @@ var Gun = (function () {
     Gun.prototype.remove = function () {
         Game.PIXI.stage.removeChild(this.gunShotContainer);
         this.visionLine.remove();
-        this.subject.gun = null;
     };
     Gun.prototype.updateAmmoBar = function () {
         this.subject.ammoBar.setText(this.ammo.toString() + '/' + this.maxAmmo.toString());
     };
     return Gun;
 }());
+var MachineGun = (function (_super) {
+    __extends(MachineGun, _super);
+    function MachineGun(subject) {
+        var _this = _super.call(this, subject) || this;
+        _this.textureForPlayer = PIXI.loader.resources['./images/sprites/player_machinegun.png'].texture;
+        _this.textureForEnemy = PIXI.loader.resources['./images/sprites/soldier_machinegun.png'].texture;
+        _this._maxAmmo = 30;
+        _this.ammo = _this.maxAmmo;
+        _this._damage = 10;
+        _this.shootingDelay = 0.1;
+        _this.reloadingTime = 4;
+        _this.shootingSpread = 15;
+        _this.minShootingSpread = 7;
+        _this.gunOffset = {
+            angle: 19.20,
+            distance: 27
+        };
+        _this.shootingSound = Game.sounds.machinegun[Math.round(Math.random() * 5)];
+        _this.reloadingSound = Game.sounds.pistolReload;
+        if (_this.subject instanceof Player) {
+            _this.subject.sprite.texture = _this.textureForPlayer;
+        }
+        else if (_this.subject instanceof EnemySoldier) {
+            _this.subject.sprite.texture = _this.textureForEnemy;
+        }
+        return _this;
+    }
+    MachineGun.prototype.shoot = function () {
+        _super.prototype.shoot.call(this);
+        this.shootingSound = Game.sounds.machinegun[Math.round(Math.random() * 5)];
+    };
+    MachineGun.prototype.update = function () {
+        _super.prototype.update.call(this);
+        var barrelPosition = this.getBarrelPosition();
+        this.gunShotContainer.x = barrelPosition.x;
+        this.gunShotContainer.y = barrelPosition.y;
+        this.gunShotContainer.rotation = this.subject.sprite.rotation - 30;
+    };
+    MachineGun.prototype.getBarrelPosition = function () {
+        return {
+            x: this.subject.sprite.x + Math.cos(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance,
+            y: this.subject.sprite.y + Math.sin(this.subject.sprite.rotation + this.gunOffset.angle) * this.gunOffset.distance
+        };
+    };
+    return MachineGun;
+}(Gun));
 var Pistol = (function (_super) {
     __extends(Pistol, _super);
     function Pistol(subject) {
         var _this = _super.call(this, subject) || this;
+        _this.textureForPlayer = PIXI.loader.resources['./images/sprites/player_pistol.png'].texture;
+        _this.textureForEnemy = PIXI.loader.resources['./images/sprites/soldier_pistol.png'].texture;
         _this._maxAmmo = 6;
         _this.ammo = _this.maxAmmo;
         _this._damage = 10;
         _this.shootingDelay = 0.2;
         _this.reloadingTime = 2;
-        _this.shootingSpread = 10;
+        _this.shootingSpread = 7;
         _this.gunOffset = {
             angle: 19.20,
             distance: 27
         };
-        _this.shootingSound = Game.sounds.pistol1;
+        _this.shootingSound = Game.sounds.pistol[Math.round(Math.random() * 1)];
         _this.reloadingSound = Game.sounds.pistolReload;
+        if (_this.subject instanceof Player) {
+            _this.subject.sprite.texture = _this.textureForPlayer;
+        }
+        else if (_this.subject instanceof EnemySoldier) {
+            _this.subject.sprite.texture = _this.textureForEnemy;
+        }
         return _this;
     }
     Pistol.prototype.shoot = function () {

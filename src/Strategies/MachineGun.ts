@@ -1,14 +1,15 @@
 /// <reference path="Gun.ts"/>
 
-class Pistol extends Gun {
-    private textureForPlayer:PIXI.Texture = PIXI.loader.resources['./images/sprites/player_pistol.png'].texture
-    private textureForEnemy:PIXI.Texture = PIXI.loader.resources['./images/sprites/soldier_pistol.png'].texture
-    public _maxAmmo:number = 6
+class MachineGun extends Gun {
+    public textureForPlayer:PIXI.Texture = PIXI.loader.resources['./images/sprites/player_machinegun.png'].texture
+    public textureForEnemy:PIXI.Texture = PIXI.loader.resources['./images/sprites/soldier_machinegun.png'].texture
+    public _maxAmmo:number = 30
     public ammo:number = this.maxAmmo
     public _damage:number = 10
-    public shootingDelay: number = 0.2
-	protected reloadingTime: number = 2
-    protected shootingSpread:number = 7 // The shooting spread (in degrees), this will be multiplied by the users speed
+    public shootingDelay: number = 0.1
+	protected reloadingTime: number = 4
+    protected shootingSpread:number = 15 // The shooting spread (in degrees), this will be multiplied by the users speed
+	protected minShootingSpread: number = 7
 	private gunOffset = {
 		angle: 19.20,
 		distance: 27
@@ -16,7 +17,7 @@ class Pistol extends Gun {
 
     constructor(subject:Entity) {
         super(subject)
-        this.shootingSound = Game.sounds.pistol[Math.round(Math.random() * 1)]
+        this.shootingSound = Game.sounds.machinegun[Math.round(Math.random() * 5)]
         this.reloadingSound = Game.sounds.pistolReload
         if (this.subject instanceof Player) {
             this.subject.sprite.texture = this.textureForPlayer
@@ -27,6 +28,7 @@ class Pistol extends Gun {
 
     public shoot() {
         super.shoot()
+        this.shootingSound = Game.sounds.machinegun[Math.round(Math.random() * 5)]
     }
 
     public update(): void {

@@ -9,8 +9,12 @@ class Init implements GameState {
 		// Load textures
 		PIXI.loader
 			// Images
-			.add('./images/sprites/manBlue_gun.png')
-			.add('./images/sprites/soldier1_gun.png')
+			.add('./images/sprites/player.png')
+			.add('./images/sprites/soldier.png')
+			.add('./images/sprites/player_pistol.png')
+			.add('./images/sprites/soldier_pistol.png')
+			.add('./images/sprites/player_machinegun.png')
+			.add('./images/sprites/soldier_machinegun.png')
 			// Particles
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
@@ -25,13 +29,45 @@ class Init implements GameState {
 			.load(() => this.onLoaderComplete())
 
 		// Load sounds
-		Game.sounds.pistol1 = new Howl({
+		Game.sounds.pistol = []
+		Game.sounds.pistol[0] = new Howl({
 			src: ['./sounds/pistolShot1.mp3'],
 			volume: 0.5,
 			preload: true
 		})
-		Game.sounds.pistol2 = new Howl({
+		Game.sounds.pistol[1] = new Howl({
 			src: ['./sounds/pistolShot2.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun = []
+		Game.sounds.machinegun[0] = new Howl({
+			src: ['./sounds/machinegunShot1.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun[1] = new Howl({
+			src: ['./sounds/machinegunShot2.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun[2] = new Howl({
+			src: ['./sounds/machinegunShot3.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun[3] = new Howl({
+			src: ['./sounds/machinegunShot4.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun[4] = new Howl({
+			src: ['./sounds/machinegunShot5.mp3'],
+			volume: 0.5,
+			preload: true
+		})
+		Game.sounds.machinegun[5] = new Howl({
+			src: ['./sounds/machinegunShot6.mp3'],
 			volume: 0.5,
 			preload: true
 		})
@@ -130,7 +166,7 @@ class Init implements GameState {
 			switch (layer.name) {
 				case 'Player':
 					for (let p of layer.children) {
-						let player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/manBlue_gun.png'].texture)
+						let player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture)
 						Game.entities.push(player)
 						console.log('Placed player with index: ', Game.entities.indexOf(player))
 						Game.entities[Game.entities.indexOf(player)].sprite.x = p.x + 32
@@ -143,7 +179,7 @@ class Init implements GameState {
 				case 'Enemies':
 					console.log('Amount Enemies: ', layer.children.length)
 					for (let e of layer.children) {
-						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier1_gun.png'].texture)
+						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture)
 						Game.entities.push(enemy)
 						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
 						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
@@ -166,8 +202,5 @@ class Init implements GameState {
         Game.screen = new StartScreen()
     }
     
-    public update(): void {
-        if (this.complete) {
-        }
-    }
+    public update(): void {}
 }

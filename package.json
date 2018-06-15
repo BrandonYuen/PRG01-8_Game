@@ -28,8 +28,10 @@
 	"homepage": "https://github.com/BrandonYuen/PRG01-8_Game#readme",
 	"dependencies": {
 		"@types/howler": "^2.0.5",
+		"@types/mathjs": "^3.21.1",
 		"body-parser": "^1.18.3",
 		"express": "^4.16.3",
+		"mathjs": "^4.4.2",
 		"module-alias": "^2.0.6",
 		"pixi-particles": "^3.0.0",
 		"pixi-tiledmap": "^1.9.3",

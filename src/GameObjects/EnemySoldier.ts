@@ -3,13 +3,12 @@
 class EnemySoldier extends Entity {
 
 	// Options
-	public baseSpeed: number = 0.25
+	protected _baseSpeed: number = 0.25
 
 	constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		super(stage, texture)
 
 		this.gun = new Pistol(this)
-		this.gun.visionLine.visible = false
 
 		// Position
 		this.sprite.x = Game.canvasWidth - 300
@@ -22,10 +21,53 @@ class EnemySoldier extends Entity {
 		super.update()
 		this.updateAim()
 
-		let randomNumber = Math.random() * 100 
-		if (randomNumber < 2) {
-			this.shoot()
+		// If enemy has gun
+		if (this.gun instanceof Gun) {
+			// If enemy has vision on player
+			if (this.checkVisionOnPlayer()) {
+				this.gun.visionLine.alpha = 0.7
+
+				// Shoot at random
+				let randomNumber = Math.random() * 100 
+				if (randomNumber < 5) {
+					this.shoot()
+				}
+			} else {
+				this.gun.visionLine.alpha = 0.2}
 		}
+	}
+
+	public checkVisionOnPlayer(): boolean {
+		let vision = false
+		let player = Game.player
+
+		// If entity has no gun, return false because we can't check the visionline
+		if (this.gun instanceof Gun && player != null) {
+
+			// Create line object
+			let visionLineEndPoint = this.gun.visionLine.getEndPoint()
+			let barrelPosition = this.gun.getBarrelPosition()
+			let line = {
+				first: {
+					x: barrelPosition.x,
+					y: barrelPosition.y
+				},
+				second: {
+					x: visionLineEndPoint.x,
+					y: visionLineEndPoint.y
+				}
+			}
+
+			// Check if collision with any walls
+			let wallPoint = Util.checkCollisionLineWalls(line)
+			if (wallPoint != false) {
+				if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [this.sprite.x, this.sprite.y])) {
+					return true
+				}
+			}
+		}
+
+		return false
 	}
 
 	private shoot(){  
@@ -43,6 +85,6 @@ class EnemySoldier extends Entity {
 			this.sprite.y
 		)
 
-		this.sprite.rotation = Util.toRadiant(Util.correctDegrees(Util.toDegrees(angle) - 1))
+		this.sprite.rotation = angle
 	}
 }

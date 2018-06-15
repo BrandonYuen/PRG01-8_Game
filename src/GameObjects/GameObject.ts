@@ -1,6 +1,6 @@
 
 abstract class GameObject {
-	public sprite = new PIXI.Sprite()
+	public _sprite = new PIXI.Sprite()
 
 	constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		stage.addChild(this.sprite);
@@ -12,4 +12,8 @@ abstract class GameObject {
 	public kill(): void {
 		Game.PIXI.stage.removeChild(this.sprite);
 	}
+
+    public get sprite() {
+        return this._sprite
+    }
 }

@@ -9,17 +9,19 @@ abstract class Entity extends GameObject implements Subject {
     public reload: boolean = false
 	public x_speed: number = 0
 	public y_speed: number = 0
-    public movement:Movement = new MovingState(this)
-    public baseSpeed:number = 0
-    public reloadBar:ActionBar = new ActionBar(this, 100, 20, 25)
-    public ammoBar:ActionBar = new ActionBar(this, 50, 20, -75)
-    public healthBar:HealthBar = new HealthBar(this)
-    public maxHealth:number = 100
-    private _health:number = this.maxHealth
-    public gun:Gun | null = null
+    protected movement:Movement = new MovingState(this)
+    protected _baseSpeed:number = 0
+    private _reloadBar:ActionBar = new ActionBar(this, 100, 20, 25)
+    private _ammoBar:ActionBar = new ActionBar(this, 50, 20, -75)
+    private _healthBar:HealthBar = new HealthBar(this)
+    private _maxHealth:number = 100
+    private _health:number = this._maxHealth
+    protected gun:Gun | null = null
+    protected visionLine:VisionLine = new VisionLine(this)
     
     constructor(stage: PIXI.Container, texture: PIXI.Texture) {
         super(stage, texture)
+		this.visionLine.visible = false
         this.update()
     }
 
@@ -47,11 +49,32 @@ abstract class Entity extends GameObject implements Subject {
         return this._health
     }
 
+    public get maxHealth() {
+        return this._maxHealth
+    }
+
+    public get baseSpeed() {
+        return this._baseSpeed
+    }
+
+    public get reloadBar() {
+        return this._reloadBar
+    }
+
+    public get healthBar() {
+        return this._healthBar
+    }
+
+    public get ammoBar() {
+        return this._ammoBar
+    }
+
 	public update(): void {
 		// Update all observers too
         for (let observer of this.observers) {
             observer.update()
         }
+		this.visionLine.update()
     }
     
     public kill(): void {

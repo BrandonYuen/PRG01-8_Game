@@ -32,6 +32,11 @@ abstract class Gun implements Observer {
 			],
 			PIXI.loader.resources['./json/gunShot.json'].data
 		)
+
+        // Update ammo field after delay (because the font is not loaded instantly)
+        setTimeout(() => {
+            this.updateAmmoBar()
+		}, 500)
 	}
 
     public get damage(): number {
@@ -85,6 +90,13 @@ abstract class Gun implements Observer {
 			return
 		} else if (this.ammo <= 0) {
 			if (this.subject instanceof Player) Game.sounds.emptyMagazine.play()
+
+			// Set pistol to shooting, to prevent spam (using a delay per shoot() action)
+			this.shooting = true
+		
+			setTimeout( () => {
+				this.shooting = false
+			}, this.shootingDelay*1000)
             return
         } 
 
@@ -100,9 +112,10 @@ abstract class Gun implements Observer {
 		}, this.shootingDelay*1000)
         
 		// Calculate perfect angle to shoot the target
+		let visionLineEndPoint = this.visionLine.getEndPoint()
 		let perfectAngle = Util.rotateToPoint(
-			this.subject.sprite.x + Math.cos(Util.toRadiant(Util.toDegrees(this.visionLine.rotation) + 95.5)) * 100, 
-			this.subject.sprite.y + Math.sin(Util.toRadiant(Util.toDegrees(this.visionLine.rotation) + 95.5)) * 100, 
+			visionLineEndPoint.x, 
+			visionLineEndPoint.y, 
 			this.gunShotContainer.x, 
 			this.gunShotContainer.y
 		)
@@ -126,7 +139,6 @@ abstract class Gun implements Observer {
 	public remove(): void {
 		Game.PIXI.stage.removeChild(this.gunShotContainer)
 		this.visionLine.remove()
-		this.subject.gun = null
 	}
 
 	public updateAmmoBar(): void {

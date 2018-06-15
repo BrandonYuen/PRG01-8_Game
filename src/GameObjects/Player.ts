@@ -3,9 +3,10 @@
 
 class Player extends Entity {
 	private static instance: Player
+	private mouseDown:boolean = false
 
 	// Options
-	public baseSpeed: number = 0.25
+	protected _baseSpeed: number = 0.25
 
 	public static getInstance(stage: PIXI.Container, texture: PIXI.Texture) {
 		if (!Player.instance) {
@@ -17,12 +18,14 @@ class Player extends Entity {
 	private constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		super(stage, texture)
 
-		this.gun = new Pistol(this)
+		this.gun = new MachineGun(this)
+		this.gun.visionLine.alpha = 0
 
 		// Add keyboard listeners
 		window.addEventListener("keydown", (e: KeyboardEvent) => this.keyListener(e))
 		window.addEventListener("keyup", (e: KeyboardEvent) => this.keyListener(e))
-		Game.PIXI.stage.on("mousedown", () => this.shoot())
+		Game.PIXI.stage.on("mousedown", (e: MouseEvent) => this.mouseListener(e))
+		Game.PIXI.stage.on("mouseup", (e: MouseEvent) => this.mouseListener(e))
 
 		// Position
 		this.sprite.x = 300
@@ -34,6 +37,14 @@ class Player extends Entity {
 	public update(): void {
 		super.update()
 		this.updateAim()
+
+		if (this.mouseDown) {
+			this.shoot()
+
+			if (this.gun instanceof Pistol) {
+				this.mouseDown = false
+			}
+		}
 	}
 
 	private shoot(){  
@@ -46,6 +57,10 @@ class Player extends Entity {
 		if (this.gun instanceof Gun) {
 			this.gun.reload()
 		}
+	}
+
+	private mouseListener(event: MouseEvent): void {
+		this.mouseDown = (event.type == "mousedown") ? true : false
 	}
 
 	private keyListener(event: KeyboardEvent): void {
