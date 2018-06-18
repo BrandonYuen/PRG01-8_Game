@@ -527,9 +527,9 @@ var EnemySoldier = (function (_super) {
     };
     EnemySoldier.prototype.shoot = function () {
         if (this.gun instanceof Gun) {
-            this.gun.shoot();
             if (this.gun.ammo <= 0)
                 this.gun.reload();
+            this.gun.shoot();
         }
     };
     EnemySoldier.prototype.updateAim = function () {

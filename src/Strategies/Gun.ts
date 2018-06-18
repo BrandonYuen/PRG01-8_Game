@@ -139,6 +139,7 @@ abstract class Gun implements Observer {
 	public remove(): void {
 		Game.PIXI.stage.removeChild(this.gunShotContainer)
 		this.visionLine.remove()
+		this.subject.removeObserver(this)
 	}
 
 	public updateAmmoBar(): void {

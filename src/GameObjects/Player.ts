@@ -48,13 +48,13 @@ class Player extends Entity {
 	}
 
 	private shoot(){  
-		if (this.gun instanceof Gun) {
+		if (this.gun) {
 			this.gun.shoot()
 		}
 	}
 
 	private reloadGun() {  
-		if (this.gun instanceof Gun) {
+		if (this.gun) {
 			this.gun.reload()
 		}
 	}

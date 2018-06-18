@@ -13,7 +13,7 @@ class Game {
 	public static sounds: any = {}
 	public static walls: Array<PIXI.extras.AnimatedSprite> = []
 	public static emitters: Array<any> = []
-	public static containers: Array<any> = []
+	public static containers: Array<PIXI.Container> = []
 	public static entities: Array<Entity> = []
 
 	public static state: GameState

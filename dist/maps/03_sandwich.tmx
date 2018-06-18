@@ -10,37 +10,27 @@
  </layer>
  <layer name="Floors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgF5IIUIE5CopNobEcCDe1A9gM+e1JIVA8DMD/A9CUQUAtTg2xPCgE70M0nNawSCLgL3Y3kAFg80hIk0MEOevhjOAMAAEcSzQ==
   </data>
  </layer>
  <layer name="Doors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFowAT7GDELr4dhzg1AT3soBRcHgJupCUA+X+khwElAADRuASm
   </data>
  </layer>
  <layer name="Player" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgxXYMg60C0bBKBgFtAAA9L8APw==
+   eJxjYBiZwJZxoF0wCkbBKBipAAAchgA/
   </data>
  </layer>
  <layer name="Enemies" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgF1AZ2jAPtglEwCsgDo2mXPgAAYvkAfw==
-  </data>
- </layer>
- <layer name="Pistols" width="25" height="14">
-  <data encoding="base64" compression="zlib">
-   eJxjYBgFIxmwMw60C0bBKBh5AAAhNwAJ
-  </data>
- </layer>
- <layer name="Tile Layer 8" width="25" height="14">
-  <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFQwXYMQ5ec2nltlEwCoYjAACXIwC+
   </data>
  </layer>
  <layer name="Walls" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJzjZ2RgECQCCxGpDh0LALEOEBMDRIlUhw50SLCDXDBQduhT2U5sduAKd3LtJiWsyA3TgbIDV5hQM+2SaxYpdlAbDDY7KEm7WkSWbcJklonaQAwALOMJYg==
+   eJzjZ2RgEKQhFgBiHSCmJdBBs6MMiCuw4HIq2jEZhzpc4tS0owaH+HQG7P5G9juxdpADYGYRa8c0OtiBSxw9rJDTBi47JkLVVqOZMYlEt+Ozg1JADztqsLCpbQc2QC87tGhcJmoDMQD+zB6/
   </data>
  </layer>
 </map>

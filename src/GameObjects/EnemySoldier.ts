@@ -5,8 +5,8 @@ class EnemySoldier extends Entity {
 	// Options
 	protected _baseSpeed: number = 0.25
 
-	constructor(stage: PIXI.Container, texture: PIXI.Texture) {
-		super(stage, texture)
+	constructor(stage: PIXI.Container, texture: PIXI.Texture, patrolDirection:string) {
+		super(stage, texture, patrolDirection)
 
 		this.gun = new Pistol(this)
 
@@ -29,11 +29,12 @@ class EnemySoldier extends Entity {
 
 				// Shoot at random
 				let randomNumber = Math.random() * 100 
-				if (randomNumber < 5) {
+				if (randomNumber < 3) {
 					this.shoot()
 				}
 			} else {
-				this.gun.visionLine.alpha = 0.2}
+				this.gun.visionLine.alpha = 0.2
+			}
 		}
 	}
 
@@ -72,8 +73,8 @@ class EnemySoldier extends Entity {
 
 	private shoot(){  
 		if (this.gun instanceof Gun) {
-			this.gun.shoot()
 			if (this.gun.ammo <= 0) this.gun.reload()
+			this.gun.shoot()
 		}
 	}
 	

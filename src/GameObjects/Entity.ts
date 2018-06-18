@@ -18,9 +18,11 @@ abstract class Entity extends GameObject implements Subject {
     private _health:number = this._maxHealth
     protected gun:Gun | null = null
     protected visionLine:VisionLine = new VisionLine(this)
+    public AI:AI
     
-    constructor(stage: PIXI.Container, texture: PIXI.Texture) {
+    constructor(stage: PIXI.Container, texture: PIXI.Texture, patrolDirection: string) {
         super(stage, texture)
+        this.AI = new Patrol(this, patrolDirection)
 		this.visionLine.visible = false
         this.update()
     }

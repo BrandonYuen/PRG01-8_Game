@@ -74,7 +74,8 @@ class MovingState implements Movement, Observer {
         // If colliding with a wall, undo position Y change
         if (Util.checkCollisionWithWalls(this.subject.sprite)) {
 			this.subject.sprite.y -= this.subject.y_speed
-			this.subject.y_speed = 0
+            this.subject.y_speed = 0
+            this.subject.AI.onCollide()
 		}
 
 		// Friction

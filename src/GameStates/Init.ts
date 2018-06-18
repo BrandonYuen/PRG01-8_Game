@@ -176,10 +176,23 @@ class Init implements GameState {
 						p.visible = false
 					}
 					break
-				case 'Enemies':
+				case 'EnemiesHorizontal':
 					console.log('Amount Enemies: ', layer.children.length)
 					for (let e of layer.children) {
-						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture)
+						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'horizontal')
+						Game.entities.push(enemy)
+						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
+						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
+						Game.entities[Game.entities.indexOf(enemy)].sprite.y = e.y + 32
+					} for (let e of layer.children) {
+						// Remove dummy object
+						e.visible = false
+					}
+					break
+				case 'EnemiesVertical':
+					console.log('Amount Enemies: ', layer.children.length)
+					for (let e of layer.children) {
+						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'vertical')
 						Game.entities.push(enemy)
 						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
 						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
