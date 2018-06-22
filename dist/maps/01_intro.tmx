@@ -23,9 +23,19 @@
    eJxjYBgFgxXYMg60C0bBKBgFtAAA9L8APw==
   </data>
  </layer>
- <layer name="Enemies" width="25" height="14">
+ <layer name="EnemiesStationary" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgF1AZ2jAPtglEwCsgDo2mXPgAAYvkAfw==
+  </data>
+ </layer>
+ <layer name="EnemiesVertical" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+  </data>
+ </layer>
+ <layer name="EnemiesHorizontal" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
   </data>
  </layer>
  <layer name="Pistols" width="25" height="14">
@@ -33,9 +43,9 @@
    eJxjYBgFIxmwMw60C0bBKBh5AAAhNwAJ
   </data>
  </layer>
- <layer name="Tile Layer 8" width="25" height="14">
+ <layer name="MachineGuns" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFo2AUjILhA5QYB9oFhAEAG+MAJA==
   </data>
  </layer>
  <layer name="Walls" width="25" height="14">

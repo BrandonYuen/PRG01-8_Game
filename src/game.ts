@@ -1,4 +1,5 @@
 /// <reference path="GameStates/Init.ts"/>
+/// <reference path="../dist/js/pixi-bump.js"/>
 
 class Game {
 	public static canvasWidth = 1600
@@ -8,16 +9,31 @@ class Game {
 	public static PIXI: any
 	public static BUMP: any = new Bump(PIXI)
 
-	public static tiledMap: any
+	public static tiledMapContainer: any = new PIXI.Container()
 	public static bullets: Array<Bullet> = []
 	public static sounds: any = {}
 	public static walls: Array<PIXI.extras.AnimatedSprite> = []
 	public static emitters: Array<any> = []
 	public static containers: Array<PIXI.Container> = []
-	public static entities: Array<Entity> = []
+	public static gameObjects: Array<GameObject> = []
 
 	public static state: GameState
-    public static screen: UIScreen
+	public static screen: UIScreen
+	
+	public static points: number = 0
+	private static _enemyCount:number = 0
+	
+	public static set enemyCount(count:number) {
+		console.log('setting enemy count to: ',count)
+		Game._enemyCount = count
+		if (count <= 0) {
+			Game.state = new Complete()
+		}
+	}
+
+	public static get enemyCount(): number {
+		return Game._enemyCount
+	}
 
 	public static getInstance() {
 		if (!Game.instance) {
@@ -31,9 +47,8 @@ class Game {
 		Game.PIXI.stage.interactive = true
 		document.body.appendChild(Game.PIXI.view)
 
-		// Add tiledMap
-		Game.tiledMap = new PIXI.Container()
-		Game.PIXI.stage.addChild(Game.tiledMap);
+		// Add tiledMap container to stage
+		Game.PIXI.stage.addChild(Game.tiledMapContainer);
 
 		// Start gameLoop
 		this.gameLoop()
@@ -74,15 +89,22 @@ class Game {
 		}
 	}
 
-	public static removeEntity(e: Entity): void {
-		let index = Game.entities.indexOf(e)
+	public static removeGameObject(e: GameObject): void {
+		let index = Game.gameObjects.indexOf(e)
 		if (index !== -1) {
-			Game.entities.splice(index, 1);
+			Game.gameObjects.splice(index, 1);
+		}
+	}
+
+	public static removeWall(w: PIXI.extras.AnimatedSprite): void {
+		let index = Game.walls.indexOf(w)
+		if (index !== -1) {
+			Game.walls.splice(index, 1);
 		}
 	}
 
 	public static get player(): any {
-		for (let e of Game.entities) {
+		for (let e of Game.gameObjects) {
 			if (e instanceof Player) {
 				return e as Player
 			}

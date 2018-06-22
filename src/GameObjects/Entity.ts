@@ -14,15 +14,13 @@ abstract class Entity extends GameObject implements Subject {
     private _reloadBar:ActionBar = new ActionBar(this, 100, 20, 25)
     private _ammoBar:ActionBar = new ActionBar(this, 50, 20, -75)
     private _healthBar:HealthBar = new HealthBar(this)
-    private _maxHealth:number = 100
+    protected _maxHealth:number = 100
     private _health:number = this._maxHealth
-    protected gun:Gun | null = null
+    protected _gun:Gun = new Unarmed(this)
     protected visionLine:VisionLine = new VisionLine(this)
-    public AI:AI
     
-    constructor(stage: PIXI.Container, texture: PIXI.Texture, patrolDirection: string) {
+    constructor(stage: PIXI.Container, texture: PIXI.Texture) {
         super(stage, texture)
-        this.AI = new Patrol(this, patrolDirection)
 		this.visionLine.visible = false
         this.update()
     }
@@ -34,6 +32,15 @@ abstract class Entity extends GameObject implements Subject {
     removeObserver(o: Observer) {
         let index = this.observers.indexOf(o);
         this.observers.splice(index, 1)
+    }
+
+    public set gun(gun:Gun) {
+        this._gun.remove()
+        this._gun = gun
+    }
+
+    public get gun(): Gun {
+        return this._gun
     }
 
     public set health(health: number) {
@@ -81,12 +88,13 @@ abstract class Entity extends GameObject implements Subject {
     
     public kill(): void {
         super.kill()
-        Game.removeEntity(this)
+        Game.removeGameObject(this)
         if (this.gun instanceof Gun) {
             this.gun.remove()
         }
         this.healthBar.remove()
         this.reloadBar.remove()
         this.ammoBar.remove()
+        this.visionLine.remove()
     }
 }

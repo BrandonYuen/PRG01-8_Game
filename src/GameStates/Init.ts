@@ -15,6 +15,8 @@ class Init implements GameState {
 			.add('./images/sprites/soldier_pistol.png')
 			.add('./images/sprites/player_machinegun.png')
 			.add('./images/sprites/soldier_machinegun.png')
+			.add('./images/sprites/weapon_pistol.png')
+			.add('./images/sprites/weapon_machinegun.png')
 			// Particles
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')
@@ -24,8 +26,8 @@ class Init implements GameState {
 			.add('./json/bulletTrail.json')
 			.add('./json/blood.json')
 			// TileMaps
-			.add('./maps/01_empty.tmx')
 			.add('./maps/01_intro.tmx')
+			.add('./maps/03_sandwich.tmx')
 			.load(() => this.onLoaderComplete())
 
 		// Load sounds
@@ -152,63 +154,12 @@ class Init implements GameState {
 			src: ['./sounds/pistolReload.wav'],
 			volume: 0.5,
 			preload: true
-        })
+		})
     }
 
 	private onLoaderComplete(): void {
-
-		// Add tiled map as pixi objects to stage
-		Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
-
-		// Load all objects from tilemap
-		for (let layer of Game.tiledMap.children[0].children) {
-			console.log('loading layer ('+layer.name+')')
-			switch (layer.name) {
-				case 'Player':
-					for (let p of layer.children) {
-						let player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture)
-						Game.entities.push(player)
-						console.log('Placed player with index: ', Game.entities.indexOf(player))
-						Game.entities[Game.entities.indexOf(player)].sprite.x = p.x + 32
-						Game.entities[Game.entities.indexOf(player)].sprite.y = p.y + 32
-					} for (let p of layer.children) {
-						// Remove dummy object
-						p.visible = false
-					}
-					break
-				case 'EnemiesHorizontal':
-					console.log('Amount Enemies: ', layer.children.length)
-					for (let e of layer.children) {
-						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'horizontal')
-						Game.entities.push(enemy)
-						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
-						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
-						Game.entities[Game.entities.indexOf(enemy)].sprite.y = e.y + 32
-					} for (let e of layer.children) {
-						// Remove dummy object
-						e.visible = false
-					}
-					break
-				case 'EnemiesVertical':
-					console.log('Amount Enemies: ', layer.children.length)
-					for (let e of layer.children) {
-						let enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'vertical')
-						Game.entities.push(enemy)
-						console.log('Placed enemy with index: ', Game.entities.indexOf(enemy))
-						Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32
-						Game.entities[Game.entities.indexOf(enemy)].sprite.y = e.y + 32
-					} for (let e of layer.children) {
-						// Remove dummy object
-						e.visible = false
-					}
-					break
-				case 'Walls':
-					for (let w of layer.children) {
-						Game.walls.push(w)
-					}
-					break
-			}
-		}
+		// Load maps (initialize)
+		MapLoader.initializeMapFiles()
 
         // Set gamestate to complete
         this.complete = true

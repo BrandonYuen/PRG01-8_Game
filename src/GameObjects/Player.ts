@@ -2,24 +2,14 @@
 /// <reference path="Entity.ts"/>
 
 class Player extends Entity {
-	private static instance: Player
 	private mouseDown:boolean = false
 
 	// Options
 	protected _baseSpeed: number = 0.25
+    protected _maxHealth:number = 150
 
-	public static getInstance(stage: PIXI.Container, texture: PIXI.Texture) {
-		if (!Player.instance) {
-			Player.instance = new Player(stage, texture)
-		}
-		return Player.instance
-	}
-
-	private constructor(stage: PIXI.Container, texture: PIXI.Texture) {
+	constructor(stage: PIXI.Container, texture: PIXI.Texture) {
 		super(stage, texture)
-
-		this.gun = new MachineGun(this)
-		this.gun.visionLine.alpha = 0
 
 		// Add keyboard listeners
 		window.addEventListener("keydown", (e: KeyboardEvent) => this.keyListener(e))
@@ -32,11 +22,29 @@ class Player extends Entity {
 		this.sprite.y = Game.canvasHeight / 2
 		this.sprite.anchor.x = 0.5
 		this.sprite.anchor.y = 0.5
+
+		// Update custom health
+		this.health = this._maxHealth
+
+		// Remove gun visionline
+		this.gun.visionLine.visible = false
+	}
+
+	// Override
+	public set gun(gun: Gun) {
+		this._gun.remove()
+		this._gun = gun
+		this.gun.visionLine.visible = false
+	}
+	
+	public get gun(): Gun {
+		return this._gun
 	}
 
 	public update(): void {
 		super.update()
 		this.updateAim()
+		this.pickupCheck()
 
 		if (this.mouseDown) {
 			this.shoot()
@@ -45,6 +53,24 @@ class Player extends Entity {
 				this.mouseDown = false
 			}
 		}
+	}
+
+	private pickupCheck(): void {
+		// Check if player is colloding with Item
+        for (let i of Game.gameObjects) {
+            if (i instanceof Item) {
+                if (Game.BUMP.hit(this.sprite, i.sprite)) {
+                    // Player picks up this item
+                    if (i.type == 'Pistol') {
+						this.gun = new Pistol(this) 
+						i.kill()
+                    } else if (i.type == 'MachineGun') {
+						this.gun = new MachineGun(this)
+						i.kill()
+					}
+                }
+            }
+        }
 	}
 
 	private shoot(){  
@@ -105,6 +131,10 @@ class Player extends Entity {
 			this.sprite.x, 
 			this.sprite.y
 		)
+	}
+
+	public kill(): void {
+		super.kill()
 	}
 
 }

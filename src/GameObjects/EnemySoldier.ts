@@ -1,13 +1,17 @@
 /// <reference path="../Strategies/MovingState.ts"/>
 /// <reference path="Entity.ts"/>
 class EnemySoldier extends Entity {
+	public AI:AI
 
 	// Options
 	protected _baseSpeed: number = 0.25
+	private pointsOnKill:number = 10
+    protected _maxHealth:number = 50
 
 	constructor(stage: PIXI.Container, texture: PIXI.Texture, patrolDirection:string) {
-		super(stage, texture, patrolDirection)
+		super(stage, texture)
 
+		this.AI = new Patrol(this, patrolDirection)
 		this.gun = new Pistol(this)
 
 		// Position
@@ -15,6 +19,9 @@ class EnemySoldier extends Entity {
 		this.sprite.y = Game.canvasHeight / 2
 		this.sprite.anchor.x = 0.5
 		this.sprite.anchor.y = 0.5
+		
+		// Add enemy count to game state
+		Game.enemyCount++
     }
     
     public update(): void {
@@ -62,7 +69,7 @@ class EnemySoldier extends Entity {
 			// Check if collision with any walls
 			let wallPoint = Util.checkCollisionLineWalls(line)
 			if (wallPoint != false) {
-				if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [this.sprite.x, this.sprite.y])) {
+				if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [barrelPosition.x, barrelPosition.y])) {
 					return true
 				}
 			}
@@ -80,12 +87,20 @@ class EnemySoldier extends Entity {
 	
 	private updateAim(): void {
 		let angle = Util.rotateToPoint(
-			Game.entities[0].sprite.x, 
-			Game.entities[0].sprite.y, 
+			Game.gameObjects[0].sprite.x, 
+			Game.gameObjects[0].sprite.y, 
 			this.sprite.x, 
 			this.sprite.y
 		)
 
 		this.sprite.rotation = angle
+	}
+
+	public kill(): void {
+		super.kill()
+		if (Game.state instanceof Play) {
+			Game.enemyCount--
+			Game.points = Game.points + this.pointsOnKill
+		}
 	}
 }

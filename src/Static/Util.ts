@@ -26,9 +26,9 @@ class Util {
 		let colliding:boolean | Entity = false;
 
 		// Check all walls for collision with object
-		for (let e of Game.entities) {
+		for (let e of Game.gameObjects) {
 			if (Game.BUMP.hit(object, e.sprite)) {
-				colliding = e
+				colliding = e as Entity
 				break
 			}
 		}

@@ -7,7 +7,7 @@ class MovingState implements Movement, Observer {
     }
     private _state:string = 'walking'
 
-    constructor(subject: Entity) {
+    constructor(subject: Entity | Player | EnemySoldier) {
 		this.subject = subject
         subject.registerObserver(this)
     }
@@ -18,12 +18,10 @@ class MovingState implements Movement, Observer {
             case 'walking': 
                 this.speedMultiplier = this.options.walkingSpeedMultiplier
                 this._state = state
-                console.log(this.speedMultiplier)
                 break
             case 'running': 
                 this.speedMultiplier = this.options.runningSpeedMultiplier
                 this._state = state
-                console.log(this.speedMultiplier)
                 break
         }
     }
@@ -67,6 +65,8 @@ class MovingState implements Movement, Observer {
         if (Util.checkCollisionWithWalls(this.subject.sprite)) {
 			this.subject.sprite.x -= this.subject.x_speed
 			this.subject.x_speed = 0
+            if (this.subject instanceof EnemySoldier)
+                this.subject.AI.onCollide()
 		}
 
 		this.subject.sprite.y += this.subject.y_speed
@@ -75,7 +75,8 @@ class MovingState implements Movement, Observer {
         if (Util.checkCollisionWithWalls(this.subject.sprite)) {
 			this.subject.sprite.y -= this.subject.y_speed
             this.subject.y_speed = 0
-            this.subject.AI.onCollide()
+            if (this.subject instanceof EnemySoldier)
+                this.subject.AI.onCollide()
 		}
 
 		// Friction

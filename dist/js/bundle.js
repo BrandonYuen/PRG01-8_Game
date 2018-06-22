@@ -25,14 +25,16 @@ var Init = (function () {
             .add('./images/sprites/soldier_pistol.png')
             .add('./images/sprites/player_machinegun.png')
             .add('./images/sprites/soldier_machinegun.png')
+            .add('./images/sprites/weapon_pistol.png')
+            .add('./images/sprites/weapon_machinegun.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
             .add('./json/gunShot.json')
             .add('./json/bulletImpact.json')
             .add('./json/bulletTrail.json')
             .add('./json/blood.json')
-            .add('./maps/01_empty.tmx')
             .add('./maps/01_intro.tmx')
+            .add('./maps/03_sandwich.tmx')
             .load(function () { return _this.onLoaderComplete(); });
         Game.sounds.pistol = [];
         Game.sounds.pistol[0] = new Howl({
@@ -160,48 +162,7 @@ var Init = (function () {
         });
     }
     Init.prototype.onLoaderComplete = function () {
-        Game.tiledMap.addChild(new PIXI.extras.TiledMap("./maps/01_intro.tmx"));
-        for (var _i = 0, _a = Game.tiledMap.children[0].children; _i < _a.length; _i++) {
-            var layer = _a[_i];
-            console.log('loading layer (' + layer.name + ')');
-            switch (layer.name) {
-                case 'Player':
-                    for (var _b = 0, _c = layer.children; _b < _c.length; _b++) {
-                        var p = _c[_b];
-                        var player = Player.getInstance(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture);
-                        Game.entities.push(player);
-                        console.log('Placed player with index: ', Game.entities.indexOf(player));
-                        Game.entities[Game.entities.indexOf(player)].sprite.x = p.x + 32;
-                        Game.entities[Game.entities.indexOf(player)].sprite.y = p.y + 32;
-                    }
-                    for (var _d = 0, _e = layer.children; _d < _e.length; _d++) {
-                        var p = _e[_d];
-                        p.visible = false;
-                    }
-                    break;
-                case 'Enemies':
-                    console.log('Amount Enemies: ', layer.children.length);
-                    for (var _f = 0, _g = layer.children; _f < _g.length; _f++) {
-                        var e = _g[_f];
-                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture);
-                        Game.entities.push(enemy);
-                        console.log('Placed enemy with index: ', Game.entities.indexOf(enemy));
-                        Game.entities[Game.entities.indexOf(enemy)].sprite.x = e.x + 32;
-                        Game.entities[Game.entities.indexOf(enemy)].sprite.y = e.y + 32;
-                    }
-                    for (var _h = 0, _j = layer.children; _h < _j.length; _h++) {
-                        var e = _j[_h];
-                        e.visible = false;
-                    }
-                    break;
-                case 'Walls':
-                    for (var _k = 0, _l = layer.children; _k < _l.length; _k++) {
-                        var w = _l[_k];
-                        Game.walls.push(w);
-                    }
-                    break;
-            }
-        }
+        MapLoader.initializeMapFiles();
         this.complete = true;
         Game.screen = new StartScreen();
     };
@@ -213,10 +174,23 @@ var Game = (function () {
         Game.PIXI = new PIXI.Application({ width: Game.canvasWidth, height: Game.canvasHeight });
         Game.PIXI.stage.interactive = true;
         document.body.appendChild(Game.PIXI.view);
-        Game.tiledMap = new PIXI.Container();
-        Game.PIXI.stage.addChild(Game.tiledMap);
+        Game.PIXI.stage.addChild(Game.tiledMapContainer);
         this.gameLoop();
     }
+    Object.defineProperty(Game, "enemyCount", {
+        get: function () {
+            return Game._enemyCount;
+        },
+        set: function (count) {
+            console.log('setting enemy count to: ', count);
+            Game._enemyCount = count;
+            if (count <= 0) {
+                Game.state = new Complete();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Game.getInstance = function () {
         if (!Game.instance) {
             Game.instance = new Game();
@@ -251,15 +225,21 @@ var Game = (function () {
             Game.containers.splice(index, 1);
         }
     };
-    Game.removeEntity = function (e) {
-        var index = Game.entities.indexOf(e);
+    Game.removeGameObject = function (e) {
+        var index = Game.gameObjects.indexOf(e);
         if (index !== -1) {
-            Game.entities.splice(index, 1);
+            Game.gameObjects.splice(index, 1);
+        }
+    };
+    Game.removeWall = function (w) {
+        var index = Game.walls.indexOf(w);
+        if (index !== -1) {
+            Game.walls.splice(index, 1);
         }
     };
     Object.defineProperty(Game, "player", {
         get: function () {
-            for (var _i = 0, _a = Game.entities; _i < _a.length; _i++) {
+            for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
                 var e = _a[_i];
                 if (e instanceof Player) {
                     return e;
@@ -273,13 +253,71 @@ var Game = (function () {
     Game.canvasWidth = 1600;
     Game.canvasHeight = 896;
     Game.BUMP = new Bump(PIXI);
+    Game.tiledMapContainer = new PIXI.Container();
     Game.bullets = [];
     Game.sounds = {};
     Game.walls = [];
     Game.emitters = [];
     Game.containers = [];
-    Game.entities = [];
+    Game.gameObjects = [];
+    Game.points = 0;
+    Game._enemyCount = 0;
     return Game;
+}());
+var Patrol = (function () {
+    function Patrol(subject, direction) {
+        this.subject = subject;
+        switch (direction) {
+            case "horizontal":
+                this.direction = "horizontal";
+                if (Math.random() > 0.5) {
+                    this.subject.left = true;
+                }
+                else {
+                    this.subject.right = true;
+                }
+                break;
+            case "vertical":
+                this.direction = "vertical";
+                if (Math.random() > 0.5) {
+                    this.subject.up = true;
+                }
+                else {
+                    this.subject.down = true;
+                }
+                break;
+            default:
+                this.direction = "stationary";
+                break;
+        }
+    }
+    Patrol.prototype.setDirection = function () {
+    };
+    Patrol.prototype.onCollide = function () {
+        switch (this.direction) {
+            case "horizontal":
+                if (this.subject.left) {
+                    this.subject.left = false;
+                    this.subject.right = true;
+                }
+                else {
+                    this.subject.left = true;
+                    this.subject.right = false;
+                }
+                break;
+            case "vertical":
+                if (this.subject.up) {
+                    this.subject.up = false;
+                    this.subject.down = true;
+                }
+                else {
+                    this.subject.up = true;
+                    this.subject.down = false;
+                }
+                break;
+        }
+    };
+    return Patrol;
 }());
 var MovingState = (function () {
     function MovingState(subject) {
@@ -303,12 +341,10 @@ var MovingState = (function () {
                 case 'walking':
                     this.speedMultiplier = this.options.walkingSpeedMultiplier;
                     this._state = state;
-                    console.log(this.speedMultiplier);
                     break;
                 case 'running':
                     this.speedMultiplier = this.options.runningSpeedMultiplier;
                     this._state = state;
-                    console.log(this.speedMultiplier);
                     break;
             }
         },
@@ -339,11 +375,15 @@ var MovingState = (function () {
         if (Util.checkCollisionWithWalls(this.subject.sprite)) {
             this.subject.sprite.x -= this.subject.x_speed;
             this.subject.x_speed = 0;
+            if (this.subject instanceof EnemySoldier)
+                this.subject.AI.onCollide();
         }
         this.subject.sprite.y += this.subject.y_speed;
         if (Util.checkCollisionWithWalls(this.subject.sprite)) {
             this.subject.sprite.y -= this.subject.y_speed;
             this.subject.y_speed = 0;
+            if (this.subject instanceof EnemySoldier)
+                this.subject.AI.onCollide();
         }
         this.subject.x_speed *= 0.9;
         this.subject.y_speed *= 0.9;
@@ -357,6 +397,7 @@ var GameObject = (function () {
         this.sprite.texture = texture;
     }
     GameObject.prototype.kill = function () {
+        Game.removeGameObject(this);
         Game.PIXI.stage.removeChild(this.sprite);
     };
     Object.defineProperty(GameObject.prototype, "sprite", {
@@ -387,7 +428,7 @@ var Entity = (function (_super) {
         _this._healthBar = new HealthBar(_this);
         _this._maxHealth = 100;
         _this._health = _this._maxHealth;
-        _this.gun = null;
+        _this._gun = new Unarmed(_this);
         _this.visionLine = new VisionLine(_this);
         _this.visionLine.visible = false;
         _this.update();
@@ -400,6 +441,17 @@ var Entity = (function (_super) {
         var index = this.observers.indexOf(o);
         this.observers.splice(index, 1);
     };
+    Object.defineProperty(Entity.prototype, "gun", {
+        get: function () {
+            return this._gun;
+        },
+        set: function (gun) {
+            this._gun.remove();
+            this._gun = gun;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Entity.prototype, "health", {
         get: function () {
             return this._health;
@@ -462,26 +514,31 @@ var Entity = (function (_super) {
     };
     Entity.prototype.kill = function () {
         _super.prototype.kill.call(this);
-        Game.removeEntity(this);
+        Game.removeGameObject(this);
         if (this.gun instanceof Gun) {
             this.gun.remove();
         }
         this.healthBar.remove();
         this.reloadBar.remove();
         this.ammoBar.remove();
+        this.visionLine.remove();
     };
     return Entity;
 }(GameObject));
 var EnemySoldier = (function (_super) {
     __extends(EnemySoldier, _super);
-    function EnemySoldier(stage, texture) {
+    function EnemySoldier(stage, texture, patrolDirection) {
         var _this = _super.call(this, stage, texture) || this;
         _this._baseSpeed = 0.25;
+        _this.pointsOnKill = 10;
+        _this._maxHealth = 50;
+        _this.AI = new Patrol(_this, patrolDirection);
         _this.gun = new Pistol(_this);
         _this.sprite.x = Game.canvasWidth - 300;
         _this.sprite.y = Game.canvasHeight / 2;
         _this.sprite.anchor.x = 0.5;
         _this.sprite.anchor.y = 0.5;
+        Game.enemyCount++;
         return _this;
     }
     EnemySoldier.prototype.update = function () {
@@ -491,7 +548,7 @@ var EnemySoldier = (function (_super) {
             if (this.checkVisionOnPlayer()) {
                 this.gun.visionLine.alpha = 0.7;
                 var randomNumber = Math.random() * 100;
-                if (randomNumber < 5) {
+                if (randomNumber < 3) {
                     this.shoot();
                 }
             }
@@ -518,7 +575,7 @@ var EnemySoldier = (function (_super) {
             };
             var wallPoint = Util.checkCollisionLineWalls(line);
             if (wallPoint != false) {
-                if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [this.sprite.x, this.sprite.y])) {
+                if (wallPoint.shortestDistance > math.distance([Game.player.sprite.x, Game.player.sprite.y], [barrelPosition.x, barrelPosition.y])) {
                     return true;
                 }
             }
@@ -533,19 +590,62 @@ var EnemySoldier = (function (_super) {
         }
     };
     EnemySoldier.prototype.updateAim = function () {
-        var angle = Util.rotateToPoint(Game.entities[0].sprite.x, Game.entities[0].sprite.y, this.sprite.x, this.sprite.y);
+        var angle = Util.rotateToPoint(Game.gameObjects[0].sprite.x, Game.gameObjects[0].sprite.y, this.sprite.x, this.sprite.y);
         this.sprite.rotation = angle;
+    };
+    EnemySoldier.prototype.kill = function () {
+        _super.prototype.kill.call(this);
+        if (Game.state instanceof Play) {
+            Game.enemyCount--;
+            Game.points = Game.points + this.pointsOnKill;
+        }
     };
     return EnemySoldier;
 }(Entity));
+var Item = (function (_super) {
+    __extends(Item, _super);
+    function Item(type, stage, texture) {
+        var _this = _super.call(this, stage, texture) || this;
+        _this.maxScale = 1.5;
+        _this.scalingState = 'expanding';
+        _this._type = type;
+        _this.sprite.anchor.x = 0.5;
+        _this.sprite.anchor.y = 0.5;
+        return _this;
+    }
+    Object.defineProperty(Item.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Item.prototype.update = function () {
+        this.sprite.rotation = Util.toRadiant(Util.toDegrees(this.sprite.rotation) + 2);
+        if (this.scalingState == 'expanding') {
+            this.sprite.scale.x = this.sprite.scale.x + 0.005;
+            this.sprite.scale.y = this.sprite.scale.y + 0.005;
+            if (this.sprite.scale.x >= this.maxScale) {
+                this.scalingState = 'shrinking';
+            }
+        }
+        else {
+            this.sprite.scale.x = this.sprite.scale.x - 0.005;
+            this.sprite.scale.y = this.sprite.scale.y - 0.005;
+            if (this.sprite.scale.x <= 1) {
+                this.scalingState = 'expanding';
+            }
+        }
+    };
+    return Item;
+}(GameObject));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(stage, texture) {
         var _this = _super.call(this, stage, texture) || this;
         _this.mouseDown = false;
         _this._baseSpeed = 0.25;
-        _this.gun = new MachineGun(_this);
-        _this.gun.visionLine.alpha = 0;
+        _this._maxHealth = 150;
         window.addEventListener("keydown", function (e) { return _this.keyListener(e); });
         window.addEventListener("keyup", function (e) { return _this.keyListener(e); });
         Game.PIXI.stage.on("mousedown", function (e) { return _this.mouseListener(e); });
@@ -554,17 +654,26 @@ var Player = (function (_super) {
         _this.sprite.y = Game.canvasHeight / 2;
         _this.sprite.anchor.x = 0.5;
         _this.sprite.anchor.y = 0.5;
+        _this.health = _this._maxHealth;
+        _this.gun.visionLine.visible = false;
         return _this;
     }
-    Player.getInstance = function (stage, texture) {
-        if (!Player.instance) {
-            Player.instance = new Player(stage, texture);
-        }
-        return Player.instance;
-    };
+    Object.defineProperty(Player.prototype, "gun", {
+        get: function () {
+            return this._gun;
+        },
+        set: function (gun) {
+            this._gun.remove();
+            this._gun = gun;
+            this.gun.visionLine.visible = false;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Player.prototype.update = function () {
         _super.prototype.update.call(this);
         this.updateAim();
+        this.pickupCheck();
         if (this.mouseDown) {
             this.shoot();
             if (this.gun instanceof Pistol) {
@@ -572,13 +681,30 @@ var Player = (function (_super) {
             }
         }
     };
+    Player.prototype.pickupCheck = function () {
+        for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
+            var i = _a[_i];
+            if (i instanceof Item) {
+                if (Game.BUMP.hit(this.sprite, i.sprite)) {
+                    if (i.type == 'Pistol') {
+                        this.gun = new Pistol(this);
+                        i.kill();
+                    }
+                    else if (i.type == 'MachineGun') {
+                        this.gun = new MachineGun(this);
+                        i.kill();
+                    }
+                }
+            }
+        }
+    };
     Player.prototype.shoot = function () {
-        if (this.gun instanceof Gun) {
+        if (this.gun) {
             this.gun.shoot();
         }
     };
     Player.prototype.reloadGun = function () {
-        if (this.gun instanceof Gun) {
+        if (this.gun) {
             this.gun.reload();
         }
     };
@@ -616,23 +742,35 @@ var Player = (function (_super) {
     Player.prototype.updateAim = function () {
         this.sprite.rotation = Util.rotateToPoint(Game.PIXI.renderer.plugins.interaction.mouse.global.x, Game.PIXI.renderer.plugins.interaction.mouse.global.y, this.sprite.x, this.sprite.y);
     };
+    Player.prototype.kill = function () {
+        _super.prototype.kill.call(this);
+    };
     return Player;
 }(Entity));
+var Complete = (function () {
+    function Complete() {
+        MapLoader.unloadCurrentMap();
+    }
+    Complete.prototype.update = function () {
+    };
+    return Complete;
+}());
 var Play = (function () {
     function Play() {
+        MapLoader.loadNextMap();
     }
     Play.prototype.update = function () {
-        for (var _i = 0, _a = Game.entities; _i < _a.length; _i++) {
-            var e = _a[_i];
-            e.update();
-        }
-        for (var _b = 0, _c = Game.bullets; _b < _c.length; _b++) {
-            var b = _c[_b];
+        for (var _i = 0, _a = Game.bullets; _i < _a.length; _i++) {
+            var b = _a[_i];
             b.update();
         }
-        for (var _d = 0, _e = Game.emitters; _d < _e.length; _d++) {
-            var e = _e[_d];
+        for (var _b = 0, _c = Game.emitters; _b < _c.length; _b++) {
+            var e = _c[_b];
             e.update();
+        }
+        for (var _d = 0, _e = Game.gameObjects; _d < _e.length; _d++) {
+            var g = _e[_d];
+            g.update();
         }
     };
     return Play;
@@ -694,7 +832,7 @@ var Bullet = (function (_super) {
         var collisionCheck = Util.checkCollisionWithEntities(this);
         if (collisionCheck != false) {
             if (collisionCheck != this.shooter) {
-                if (this.shooter instanceof EnemySoldier && collisionCheck instanceof EnemySoldier) {
+                if ((this.shooter instanceof EnemySoldier && collisionCheck instanceof EnemySoldier) || collisionCheck instanceof Item) {
                     return;
                 }
                 collisionCheck.health -= this.damage;
@@ -849,6 +987,164 @@ var VisionLine = (function (_super) {
     };
     return VisionLine;
 }(PIXI.Graphics));
+var MapLoader = (function () {
+    function MapLoader() {
+    }
+    MapLoader.initializeMapFiles = function () {
+        MapLoader.maps = [
+            new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
+        ];
+    };
+    MapLoader.loadNextMap = function () {
+        var nextMap = MapLoader.maps[MapLoader.currentMapIndex + 1];
+        MapLoader.loadMap(nextMap);
+    };
+    MapLoader.loadMap = function (name) {
+        this.unloadCurrentMap();
+        var mapIndex = MapLoader.maps.indexOf(name);
+        var map = MapLoader.maps[mapIndex];
+        MapLoader.currentMapIndex = mapIndex;
+        Game.tiledMapContainer.addChild(map);
+        for (var _i = 0, _a = Game.tiledMapContainer.children[0].children; _i < _a.length; _i++) {
+            var layer = _a[_i];
+            console.log('loading layer (' + layer.name + ')');
+            switch (layer.name) {
+                case 'Pistols':
+                    for (var _b = 0, _c = layer.children; _b < _c.length; _b++) {
+                        var e = _c[_b];
+                        var item = new Item('Pistol', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_pistol.png'].texture);
+                        Game.gameObjects.push(item);
+                        console.log('Placed Pistol with index: ', Game.gameObjects.indexOf(item));
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32;
+                    }
+                    for (var _d = 0, _e = layer.children; _d < _e.length; _d++) {
+                        var e = _e[_d];
+                        e.visible = false;
+                    }
+                    break;
+                case 'MachineGuns':
+                    for (var _f = 0, _g = layer.children; _f < _g.length; _f++) {
+                        var e = _g[_f];
+                        var item = new Item('MachineGun', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_machinegun.png'].texture);
+                        Game.gameObjects.push(item);
+                        console.log('Placed MachineGun with index: ', Game.gameObjects.indexOf(item));
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32;
+                    }
+                    for (var _h = 0, _j = layer.children; _h < _j.length; _h++) {
+                        var e = _j[_h];
+                        e.visible = false;
+                    }
+                    break;
+                case 'Player':
+                    for (var _k = 0, _l = layer.children; _k < _l.length; _k++) {
+                        var p = _l[_k];
+                        var player = new Player(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture);
+                        Game.gameObjects.push(player);
+                        console.log('Placed player with index: ', Game.gameObjects.indexOf(player));
+                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.x = p.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.y = p.y + 32;
+                    }
+                    for (var _m = 0, _o = layer.children; _m < _o.length; _m++) {
+                        var p = _o[_m];
+                        p.visible = false;
+                    }
+                    break;
+                case 'EnemiesStationary':
+                    for (var _p = 0, _q = layer.children; _p < _q.length; _p++) {
+                        var e = _q[_p];
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'stationary');
+                        Game.gameObjects.push(enemy);
+                        console.log('Placed EnemiesStationary with index: ', Game.gameObjects.indexOf(enemy));
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                    }
+                    for (var _r = 0, _s = layer.children; _r < _s.length; _r++) {
+                        var e = _s[_r];
+                        e.visible = false;
+                    }
+                    break;
+                case 'EnemiesHorizontal':
+                    for (var _t = 0, _u = layer.children; _t < _u.length; _t++) {
+                        var e = _u[_t];
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'horizontal');
+                        Game.gameObjects.push(enemy);
+                        console.log('Placed EnemiesHorizontal with index: ', Game.gameObjects.indexOf(enemy));
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                    }
+                    for (var _v = 0, _w = layer.children; _v < _w.length; _v++) {
+                        var e = _w[_v];
+                        e.visible = false;
+                    }
+                    break;
+                case 'EnemiesVertical':
+                    for (var _x = 0, _y = layer.children; _x < _y.length; _x++) {
+                        var e = _y[_x];
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'vertical');
+                        Game.gameObjects.push(enemy);
+                        console.log('Placed enemy with index: ', Game.gameObjects.indexOf(enemy));
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                    }
+                    for (var _z = 0, _0 = layer.children; _z < _0.length; _z++) {
+                        var e = _0[_z];
+                        e.visible = false;
+                    }
+                    break;
+                case 'Walls':
+                    for (var _1 = 0, _2 = layer.children; _1 < _2.length; _1++) {
+                        var w = _2[_1];
+                        Game.walls.push(w);
+                    }
+                    break;
+            }
+        }
+    };
+    MapLoader.unloadCurrentMap = function () {
+        var gameObjectsArray = [];
+        for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
+            var g = _a[_i];
+            gameObjectsArray.push(g);
+        }
+        for (var _b = 0, gameObjectsArray_1 = gameObjectsArray; _b < gameObjectsArray_1.length; _b++) {
+            var g = gameObjectsArray_1[_b];
+            g.kill();
+        }
+        var wallsArray = [];
+        for (var _c = 0, _d = Game.walls; _c < _d.length; _c++) {
+            var w = _d[_c];
+            wallsArray.push(w);
+        }
+        for (var _e = 0, wallsArray_1 = wallsArray; _e < wallsArray_1.length; _e++) {
+            var w = wallsArray_1[_e];
+            Game.removeWall(w);
+        }
+        var containersArray = [];
+        for (var _f = 0, _g = Game.containers; _f < _g.length; _f++) {
+            var c = _g[_f];
+            containersArray.push(c);
+        }
+        for (var _h = 0, containersArray_1 = containersArray; _h < containersArray_1.length; _h++) {
+            var c = containersArray_1[_h];
+            Game.removeContainer(c);
+        }
+        var bulletsArray = [];
+        for (var _j = 0, _k = Game.bullets; _j < _k.length; _j++) {
+            var b = _k[_j];
+            bulletsArray.push(b);
+        }
+        for (var _l = 0, bulletsArray_1 = bulletsArray; _l < bulletsArray_1.length; _l++) {
+            var b = bulletsArray_1[_l];
+            Game.removeContainer(b);
+        }
+        Game.tiledMapContainer.removeChild(MapLoader.maps[this.currentMapIndex]);
+    };
+    MapLoader.maps = [];
+    MapLoader.currentMapIndex = -1;
+    return MapLoader;
+}());
 var Util = (function () {
     function Util() {
     }
@@ -876,7 +1172,7 @@ var Util = (function () {
     };
     Util.checkCollisionWithEntities = function (object) {
         var colliding = false;
-        for (var _i = 0, _a = Game.entities; _i < _a.length; _i++) {
+        for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
             var e = _a[_i];
             if (Game.BUMP.hit(object, e.sprite)) {
                 colliding = e;
@@ -1152,6 +1448,7 @@ var Gun = (function () {
     Gun.prototype.remove = function () {
         Game.PIXI.stage.removeChild(this.gunShotContainer);
         this.visionLine.remove();
+        this.subject.removeObserver(this);
     };
     Gun.prototype.updateAmmoBar = function () {
         this.subject.ammoBar.setText(this.ammo.toString() + '/' + this.maxAmmo.toString());
@@ -1169,7 +1466,7 @@ var MachineGun = (function (_super) {
         _this._damage = 10;
         _this.shootingDelay = 0.1;
         _this.reloadingTime = 4;
-        _this.shootingSpread = 15;
+        _this.shootingSpread = 9;
         _this.minShootingSpread = 7;
         _this.gunOffset = {
             angle: 19.20,
@@ -1247,6 +1544,31 @@ var Pistol = (function (_super) {
         };
     };
     return Pistol;
+}(Gun));
+var Unarmed = (function (_super) {
+    __extends(Unarmed, _super);
+    function Unarmed(subject) {
+        var _this = _super.call(this, subject) || this;
+        _this.textureForPlayer = PIXI.loader.resources['./images/sprites/player.png'].texture;
+        _this.textureForEnemy = PIXI.loader.resources['./images/sprites/soldier.png'].texture;
+        if (_this.subject instanceof Player) {
+            _this.subject.sprite.texture = _this.textureForPlayer;
+        }
+        else if (_this.subject instanceof EnemySoldier) {
+            _this.subject.sprite.texture = _this.textureForEnemy;
+        }
+        return _this;
+    }
+    Unarmed.prototype.shoot = function () { };
+    Unarmed.prototype.update = function () { };
+    Unarmed.prototype.reload = function () { };
+    Unarmed.prototype.getBarrelPosition = function () {
+        return {
+            x: this.subject.sprite.x,
+            y: this.subject.sprite.y
+        };
+    };
+    return Unarmed;
 }(Gun));
 var ActionBar = (function (_super) {
     __extends(ActionBar, _super);

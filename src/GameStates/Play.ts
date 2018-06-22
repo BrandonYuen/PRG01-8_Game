@@ -1,14 +1,11 @@
 class Play implements GameState {
-    constructor() {
 
-    }
+    constructor() {
+		// Load next map
+		MapLoader.loadNextMap()
+	}
 
     public update(): void {
-
-		// Update all entities
-		for (let e of Game.entities) {
-			e.update()
-		}
 
 		// Update all bullets
 		for (let b of Game.bullets) {
@@ -19,5 +16,12 @@ class Play implements GameState {
 		for (let e of Game.emitters) {
 			e.update()
 		}
+
+		// Update all emitters
+		for (let g of Game.gameObjects) {
+			g.update()
+		}
+
+		// If all enemies dead, go to complete gamestate
     }
 }

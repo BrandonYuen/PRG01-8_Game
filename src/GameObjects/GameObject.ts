@@ -10,10 +10,12 @@ abstract class GameObject {
 	abstract update(): void
 
 	public kill(): void {
+		Game.removeGameObject(this)
 		Game.PIXI.stage.removeChild(this.sprite);
 	}
 
     public get sprite() {
         return this._sprite
-    }
+	}
+
 }

@@ -100,7 +100,7 @@ class Bullet extends PIXI.Graphics {
             // If not colliding with shooter of this bullet
             if (collisionCheck != this.shooter) {
                 // Don't let enemies damage eachother
-                if (this.shooter instanceof EnemySoldier && collisionCheck instanceof EnemySoldier) {
+                if ((this.shooter instanceof EnemySoldier && collisionCheck instanceof EnemySoldier) || collisionCheck instanceof Item) {
                     return
                 }
                 collisionCheck.health -= this.damage

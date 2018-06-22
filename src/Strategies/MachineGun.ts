@@ -8,7 +8,7 @@ class MachineGun extends Gun {
     public _damage:number = 10
     public shootingDelay: number = 0.1
 	protected reloadingTime: number = 4
-    protected shootingSpread:number = 15 // The shooting spread (in degrees), this will be multiplied by the users speed
+    protected shootingSpread:number = 9 // The shooting spread (in degrees), this will be multiplied by the users speed
 	protected minShootingSpread: number = 7
 	private gunOffset = {
 		angle: 19.20,
