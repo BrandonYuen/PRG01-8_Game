@@ -177,6 +177,10 @@ var Game = (function () {
         Game.PIXI.stage.addChild(Game.tiledMapContainer);
         this.gameLoop();
     }
+    Game.AddPoints = function (amount) {
+        Game.points = Game.points + amount;
+        Game.levelPoints = Game.levelPoints + amount;
+    };
     Object.defineProperty(Game, "enemyCount", {
         get: function () {
             return Game._enemyCount;
@@ -261,6 +265,7 @@ var Game = (function () {
     Game.containers = [];
     Game.gameObjects = [];
     Game.points = 0;
+    Game.levelPoints = 0;
     Game._enemyCount = 0;
     return Game;
 }());
@@ -593,11 +598,14 @@ var EnemySoldier = (function (_super) {
         var angle = Util.rotateToPoint(Game.gameObjects[0].sprite.x, Game.gameObjects[0].sprite.y, this.sprite.x, this.sprite.y);
         this.sprite.rotation = angle;
     };
-    EnemySoldier.prototype.kill = function () {
+    EnemySoldier.prototype.kill = function (reason) {
+        if (reason === void 0) { reason = 'none'; }
         _super.prototype.kill.call(this);
         if (Game.state instanceof Play) {
+            if (reason != 'map') {
+                Game.AddPoints(this.pointsOnKill);
+            }
             Game.enemyCount--;
-            Game.points = Game.points + this.pointsOnKill;
         }
     };
     return EnemySoldier;
@@ -750,6 +758,7 @@ var Player = (function (_super) {
 var Complete = (function () {
     function Complete() {
         MapLoader.unloadCurrentMap();
+        Game.screen = new LevelCompleteScreen();
     }
     Complete.prototype.update = function () {
     };
@@ -758,6 +767,11 @@ var Complete = (function () {
 var Play = (function () {
     function Play() {
         MapLoader.loadNextMap();
+        if (!Game.startTime) {
+            Game.startTime = new Date();
+        }
+        Game.levelStartTime = new Date();
+        Game.levelPoints = 0;
     }
     Play.prototype.update = function () {
         for (var _i = 0, _a = Game.bullets; _i < _a.length; _i++) {
@@ -992,6 +1006,7 @@ var MapLoader = (function () {
     }
     MapLoader.initializeMapFiles = function () {
         MapLoader.maps = [
+            new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
             new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
         ];
     };
@@ -1110,7 +1125,10 @@ var MapLoader = (function () {
         }
         for (var _b = 0, gameObjectsArray_1 = gameObjectsArray; _b < gameObjectsArray_1.length; _b++) {
             var g = gameObjectsArray_1[_b];
-            g.kill();
+            if (g instanceof EnemySoldier)
+                g.kill('map');
+            else
+                g.kill();
         }
         var wallsArray = [];
         for (var _c = 0, _d = Game.walls; _c < _d.length; _c++) {
@@ -1692,6 +1710,78 @@ var UIScreen = (function () {
     };
     return UIScreen;
 }());
+var LevelCompleteScreen = (function (_super) {
+    __extends(LevelCompleteScreen, _super);
+    function LevelCompleteScreen() {
+        var _this = _super.call(this) || this;
+        var nextBtn = document.createElement('button');
+        nextBtn.classList.add('btn');
+        nextBtn.innerHTML = 'NEXT LEVEL';
+        _this.domElement.appendChild(nextBtn);
+        var content = document.createElement('div');
+        content.classList.add('content');
+        var p = document.createElement('p');
+        p.innerHTML = 'LEVEL ' + (MapLoader.currentMapIndex + 1) + ' COMPLETED!';
+        content.appendChild(p);
+        var table = document.createElement('table');
+        var tr_score = document.createElement('tr');
+        var score_title = document.createElement('td');
+        score_title.appendChild(document.createTextNode('POINTS:'));
+        tr_score.appendChild(score_title);
+        var score_value = document.createElement('td');
+        score_value.appendChild(document.createTextNode(Game.levelPoints.toString()));
+        tr_score.appendChild(score_value);
+        table.appendChild(tr_score);
+        var now = new Date();
+        var duration = (now.valueOf() - Game.levelStartTime.valueOf()) / 1000;
+        duration = Math.floor(duration);
+        var tr_time = document.createElement('tr');
+        var time_title = document.createElement('td');
+        time_title.appendChild(document.createTextNode('TIME:'));
+        tr_time.appendChild(time_title);
+        var time_value = document.createElement('td');
+        time_value.appendChild(document.createTextNode(duration.toString() + 's'));
+        tr_time.appendChild(time_value);
+        table.appendChild(tr_time);
+        content.appendChild(table);
+        var line = document.createElement('hr');
+        content.appendChild(line);
+        var table2 = document.createElement('table');
+        var tr_totalScore = document.createElement('tr');
+        var totalScore_title = document.createElement('td');
+        totalScore_title.appendChild(document.createTextNode('TOTAL POINTS:'));
+        tr_totalScore.appendChild(totalScore_title);
+        var totalScore_value = document.createElement('td');
+        totalScore_value.appendChild(document.createTextNode(Game.points.toString()));
+        tr_totalScore.appendChild(totalScore_value);
+        table2.appendChild(tr_totalScore);
+        var now2 = new Date();
+        var duration2 = (now.valueOf() - Game.startTime.valueOf()) / 1000;
+        duration2 = Math.floor(duration2);
+        var tr_totalTime = document.createElement('tr');
+        var totalTime_title = document.createElement('td');
+        totalTime_title.appendChild(document.createTextNode('TOTAL TIME:'));
+        tr_totalTime.appendChild(totalTime_title);
+        var totalTime_value = document.createElement('td');
+        totalTime_value.appendChild(document.createTextNode(duration2.toString() + 's'));
+        tr_totalTime.appendChild(totalTime_value);
+        table2.appendChild(tr_totalTime);
+        content.appendChild(table2);
+        _this.domElement.appendChild(content);
+        return _this;
+    }
+    LevelCompleteScreen.prototype.remove = function () {
+        _super.prototype.remove.call(this);
+    };
+    LevelCompleteScreen.prototype.clickHandler = function (e) {
+        var target = e.target;
+        if (target.nodeName === 'BUTTON') {
+            Game.screen.remove();
+            Game.state = new Play();
+        }
+    };
+    return LevelCompleteScreen;
+}(UIScreen));
 var StartScreen = (function (_super) {
     __extends(StartScreen, _super);
     function StartScreen() {

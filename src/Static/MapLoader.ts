@@ -1,12 +1,13 @@
 class MapLoader {
     private static instance: MapLoader
     private static maps: Array <any> = []
-    private static currentMapIndex: number = -1
+    public static currentMapIndex: number = -1
 
     private constructor() {}
     
     static initializeMapFiles() {
         MapLoader.maps = [
+            new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
             new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
         ]
     }
@@ -119,7 +120,8 @@ class MapLoader {
             gameObjectsArray.push(g)
         }
         for (let g of gameObjectsArray) {
-            g.kill()
+			if (g instanceof EnemySoldier) g.kill('map')
+			else g.kill()
         }
 
         // Remove walls from memory

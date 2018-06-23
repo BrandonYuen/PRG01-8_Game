@@ -21,7 +21,15 @@ class Game {
 	public static screen: UIScreen
 	
 	public static points: number = 0
+	public static levelPoints: number = 0
+	public static startTime: Date
+	public static levelStartTime: Date
 	private static _enemyCount:number = 0
+	
+	public static AddPoints(amount:number) {
+		Game.points = Game.points + amount
+		Game.levelPoints = Game.levelPoints + amount
+	}
 	
 	public static set enemyCount(count:number) {
 		console.log('setting enemy count to: ',count)

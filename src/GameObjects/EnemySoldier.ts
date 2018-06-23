@@ -96,11 +96,13 @@ class EnemySoldier extends Entity {
 		this.sprite.rotation = angle
 	}
 
-	public kill(): void {
+	public kill(reason:string='none'): void {
 		super.kill()
 		if (Game.state instanceof Play) {
+			if (reason != 'map') {
+				Game.AddPoints(this.pointsOnKill)
+			}
 			Game.enemyCount--
-			Game.points = Game.points + this.pointsOnKill
 		}
 	}
 }

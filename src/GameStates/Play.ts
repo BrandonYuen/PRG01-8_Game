@@ -3,6 +3,14 @@ class Play implements GameState {
     constructor() {
 		// Load next map
 		MapLoader.loadNextMap()
+
+		// Start times
+		if (!Game.startTime) {
+			Game.startTime = new Date()
+		}
+		Game.levelStartTime = new Date()
+
+		Game.levelPoints = 0
 	}
 
     public update(): void {
