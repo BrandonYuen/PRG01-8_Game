@@ -1,9 +1,27 @@
 # PRG01-8_Game
-Typescript game made for a school project.
+This project is a top-down shooter made in Typescript. It was made as a school assignment with the purpose of learning OOP Design patterns and principles.
+
+## How to play
+You can play the game on these [Github Docs](https://brandonyuen.github.io/PRG01-8_Game).
+
+## How to install
+1. Clone / Fork the project
+2. Install using NPM
+```
+npm install
+```
+3. Edit code & build using Typescript compiler of Visual Studio Code with `ctrl+b`
+4. Start express web server
+```
+node app
+```
+5. Local game can be played at `localhost`
+
+# For the teachers (in Dutch)
 
 ## UML
 Onderstaand de Klassendiagram (UML), klik voor groter scherm.
-![UML](https://imgur.com/rySGpIw)
+![UML](https://i.imgur.com/rySGpIw.png)
 
 ## H2 Singleton
 De class `Game` is een singleton omdat er maar 1 instantie van kan bestaan in het spel. Door de private constructor kan hij niet ge-instantiate worden vanuit andere classes dan zichzelf.

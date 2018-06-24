@@ -18,11 +18,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // static directory for client files
-app.use('/', express.static(path.join(__dirname, './dist')));
+app.use('/', express.static(path.join(__dirname, './docs')));
 
 // Initialize front-end (one pager) routes
 app.use('*', function (req, res, next) {
-	res.sendFile('dist/index.html', { root: '.' });
+	res.sendFile('docs/index.html', { root: '.' });
 });
 
 //Listen for requests
