@@ -93,7 +93,7 @@ td {
 
 controls {
     width: 1000px; height: 500px;
-	background-image: url('../images/UI/controls.png');
+	background-image: url('./../images/UI/controls.png');
     position: absolute;
     top: 40%;
     left: 50%;
