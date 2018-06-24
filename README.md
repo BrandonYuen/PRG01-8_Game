@@ -23,20 +23,20 @@ node app
 Onderstaand de Klassendiagram (UML), klik voor groter scherm.
 ![UML](https://i.imgur.com/rySGpIw.png)
 
-## H2 Singleton
+## Singleton
 De class `Game` is een singleton omdat er maar 1 instantie van kan bestaan in het spel. Door de private constructor kan hij niet ge-instantiate worden vanuit andere classes dan zichzelf.
 
-## H2 Polymorphism
+## Polymorphism
 Polymorfisme word op vele plekken toegepast. Zo zijn `Player` en `EnemySoldier` een extension van een abstract `Entity`, en een `Entity` een extension van een abstract `GameObject`. Ook is heeft een `Entity` een `Gun`, welke zowel een `Pistol` als een `Machinegun` kan zijn. Deze `Gun` weet wie zijn `subject` (eigenaar is) en roept bijvoorbeeld de `ReloadBar` en `AmmoBar` van zijn `subject` aan als de `Gun` schiet.
 
 Ook heeft `Game` een Array met `gameObjects[]`, dit kunnen zowel `Entity`'s zijn (`Player` en `EnemyPlayer`) als `Item`'s (pickups).
 
-## H2 Strategy
+## Strategy
 Een `Entity` kan een `Gun` hebben. Er zijn 2 soorten Gun's in het spel: `Pistol` en `MachineGun`, deze extenden de abstracte class `Gun`. Als een entity zijn `shoot()` method word aangeroepen word de `Gun.shoot()` aangeroepen. Deze verschilt per `Gun` want een `Pistol` heeft bijvoorbeeld minder kogels dan een `MachineGun` en kan sneller achter elkaar schieten, maar heeft ook een grotere fire spread (minder accuraat).
 
 Ook kan de speler d.m.v pickups `Item`'s oppakken. Hierdoor kan hij zowel een `Pistol` als een `MachineGun` oppakken en veranderd de speler (en EnemySoldier's) zijn `Gun` property.
 
-## H2 Observer
+## Observer
 Een `Entity` heeft meerdere classes die afhankelijk van hem zijn. Daarop heeft de `Entity` een `Subject interface` en heeft hij meerdere `Observers[]`. Elke keer als een `Entity` zijn `update()` method uitvoerd, voert hij ook de `Observer.update()` uit voor elke observer.
 
 ## Game Compontenten
