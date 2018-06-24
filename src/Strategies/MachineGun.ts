@@ -3,11 +3,11 @@
 class MachineGun extends Gun {
     public textureForPlayer:PIXI.Texture = PIXI.loader.resources['./images/sprites/player_machinegun.png'].texture
     public textureForEnemy:PIXI.Texture = PIXI.loader.resources['./images/sprites/soldier_machinegun.png'].texture
-    public _maxAmmo:number = 30
+    public _maxAmmo:number = 20
     public ammo:number = this.maxAmmo
     public _damage:number = 10
     public shootingDelay: number = 0.1
-	protected reloadingTime: number = 4
+	protected reloadingTime: number = 3
     protected shootingSpread:number = 9 // The shooting spread (in degrees), this will be multiplied by the users speed
 	protected minShootingSpread: number = 7
 	private gunOffset = {

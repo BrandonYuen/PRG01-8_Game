@@ -1,7 +1,7 @@
-class Complete implements GameState {
+class Finish implements GameState {
     constructor() {
         //TODO: Place level complete screen with score
-        Game.screen = new LevelCompleteScreen()
+        Game.screen = new FinishScreen()
     }
 
     public update(): void {

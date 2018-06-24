@@ -35,7 +35,15 @@ class Game {
 		console.log('setting enemy count to: ',count)
 		Game._enemyCount = count
 		if (count <= 0) {
-			Game.state = new Complete()
+			// All enemies dead (completed level)
+			if (Game.state instanceof Play) {
+				if (MapLoader.currentMapIndex >= MapLoader.maps.length-1 ) {
+					Game.state = new Finish()
+				}
+				else { 
+					Game.state = new Complete()
+				}
+			}
 		}
 	}
 
@@ -48,6 +56,15 @@ class Game {
 			Game.instance = new Game()
 		}
 		return Game.instance
+	}
+
+	public static restart() {
+		console.log('Restarting game')
+		Game.points = 0
+		Game.startTime = new Date()
+		MapLoader.currentMapIndex = -1
+		Game._enemyCount = 0
+		Game.state = new Play()
 	}
 
 	private constructor() {

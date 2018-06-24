@@ -44,7 +44,6 @@ class Player extends Entity {
 	public update(): void {
 		super.update()
 		this.updateAim()
-		this.pickupCheck()
 
 		if (this.mouseDown) {
 			this.shoot()
@@ -53,24 +52,6 @@ class Player extends Entity {
 				this.mouseDown = false
 			}
 		}
-	}
-
-	private pickupCheck(): void {
-		// Check if player is colloding with Item
-        for (let i of Game.gameObjects) {
-            if (i instanceof Item) {
-                if (Game.BUMP.hit(this.sprite, i.sprite)) {
-                    // Player picks up this item
-                    if (i.type == 'Pistol') {
-						this.gun = new Pistol(this) 
-						i.kill()
-                    } else if (i.type == 'MachineGun') {
-						this.gun = new MachineGun(this)
-						i.kill()
-					}
-                }
-            }
-        }
 	}
 
 	private shoot(){  
@@ -133,8 +114,13 @@ class Player extends Entity {
 		)
 	}
 
-	public kill(): void {
+	public kill(reason:string='none'): void {
 		super.kill()
+		if (Game.state instanceof Play) {
+			if (reason != 'map') {
+				Game.state = new GameOver()
+			}
+		}
 	}
 
 }

@@ -84,7 +84,26 @@ abstract class Entity extends GameObject implements Subject {
             observer.update()
         }
 		this.visionLine.update()
+		this.pickupCheck()
     }
+
+	private pickupCheck(): void {
+		// Check if player is colloding with Item
+        for (let i of Game.gameObjects) {
+            if (i instanceof Item) {
+                if (Game.BUMP.hit(this.sprite, i.sprite)) {
+                    // Player picks up this item
+                    if (i.type == 'Pistol') {
+						this.gun = new Pistol(this) 
+						i.kill()
+                    } else if (i.type == 'MachineGun') {
+						this.gun = new MachineGun(this)
+						i.kill()
+					}
+                }
+            }
+        }
+	}
     
     public kill(): void {
         super.kill()

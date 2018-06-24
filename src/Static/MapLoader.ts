@@ -1,28 +1,31 @@
 class MapLoader {
-    private static instance: MapLoader
-    private static maps: Array <any> = []
-    public static currentMapIndex: number = -1
+    private static _maps: Array <any> = []
+	public static currentMapIndex: number = -1
+	
+	public static get maps(): Array <any> {
+		return MapLoader._maps
+	}
 
     private constructor() {}
     
     static initializeMapFiles() {
-        MapLoader.maps = [
+        MapLoader._maps = [
             new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
             new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
         ]
     }
 
     static loadNextMap() {
-        let nextMap = MapLoader.maps[MapLoader.currentMapIndex+1]
-        MapLoader.loadMap(nextMap)
+		MapLoader.unloadCurrentMap()
+		let nextMap = MapLoader._maps[MapLoader.currentMapIndex+1]
+		MapLoader.loadMap(nextMap)
     }
 
     static loadMap(name: string) {
-        // Remove old map if existing
-        this.unloadCurrentMap()
-
-        let mapIndex = MapLoader.maps.indexOf(name)
-        let map = MapLoader.maps[mapIndex]
+		let mapIndex = MapLoader._maps.indexOf(name)
+		console.log('MAPS: ',MapLoader._maps)
+        console.log('Loading map: ', mapIndex)
+        let map = MapLoader._maps[mapIndex]
         MapLoader.currentMapIndex = mapIndex
 
 		// Add tiled map as pixi objects to stage
@@ -120,7 +123,7 @@ class MapLoader {
             gameObjectsArray.push(g)
         }
         for (let g of gameObjectsArray) {
-			if (g instanceof EnemySoldier) g.kill('map')
+			if (g instanceof EnemySoldier || g instanceof Player) g.kill('map')
 			else g.kill()
         }
 
@@ -143,15 +146,18 @@ class MapLoader {
         }
 
         // Remove bullets from memory and stage
-        let bulletsArray: Array<PIXI.Graphics> = []
+        let bulletsArray: Array<Bullet> = []
         for (let b of Game.bullets) {
             bulletsArray.push(b)
         }
         for (let b of bulletsArray) {
-            Game.removeContainer(b)
+            Game.removeBullet(b)
         }
 
-        // Remove tiles
-        Game.tiledMapContainer.removeChild(MapLoader.maps[this.currentMapIndex])
+		// Remove tiles
+		for (let c of Game.tiledMapContainer.children) {
+			let index = Game.tiledMapContainer.children.indexOf(c)
+			Game.tiledMapContainer.removeChild(Game.tiledMapContainer.children[index])
+		}
     }
 }

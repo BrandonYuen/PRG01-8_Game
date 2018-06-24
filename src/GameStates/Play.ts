@@ -1,6 +1,7 @@
 class Play implements GameState {
 
     constructor() {
+		
 		// Load next map
 		MapLoader.loadNextMap()
 
@@ -29,7 +30,5 @@ class Play implements GameState {
 		for (let g of Game.gameObjects) {
 			g.update()
 		}
-
-		// If all enemies dead, go to complete gamestate
     }
 }

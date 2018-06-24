@@ -81,7 +81,21 @@ class EnemySoldier extends Entity {
 	private shoot(){  
 		if (this.gun instanceof Gun) {
 			if (this.gun.ammo <= 0) this.gun.reload()
-			this.gun.shoot()
+			if (this.gun instanceof Pistol) this.gun.shoot()
+			if (this.gun instanceof MachineGun) {
+				let counter = 0
+				let shoot = () => {
+					this.gun.shoot()
+					counter++
+					if (counter >= 3) {
+						return
+					}
+					setTimeout(() => {
+						shoot()
+					}, 150)
+				}
+				shoot()
+			}
 		}
 	}
 	

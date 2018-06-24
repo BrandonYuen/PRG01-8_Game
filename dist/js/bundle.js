@@ -189,7 +189,14 @@ var Game = (function () {
             console.log('setting enemy count to: ', count);
             Game._enemyCount = count;
             if (count <= 0) {
-                Game.state = new Complete();
+                if (Game.state instanceof Play) {
+                    if (MapLoader.currentMapIndex >= MapLoader.maps.length - 1) {
+                        Game.state = new Finish();
+                    }
+                    else {
+                        Game.state = new Complete();
+                    }
+                }
             }
         },
         enumerable: true,
@@ -200,6 +207,14 @@ var Game = (function () {
             Game.instance = new Game();
         }
         return Game.instance;
+    };
+    Game.restart = function () {
+        console.log('Restarting game');
+        Game.points = 0;
+        Game.startTime = new Date();
+        MapLoader.currentMapIndex = -1;
+        Game._enemyCount = 0;
+        Game.state = new Play();
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
@@ -516,6 +531,24 @@ var Entity = (function (_super) {
             observer.update();
         }
         this.visionLine.update();
+        this.pickupCheck();
+    };
+    Entity.prototype.pickupCheck = function () {
+        for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
+            var i = _a[_i];
+            if (i instanceof Item) {
+                if (Game.BUMP.hit(this.sprite, i.sprite)) {
+                    if (i.type == 'Pistol') {
+                        this.gun = new Pistol(this);
+                        i.kill();
+                    }
+                    else if (i.type == 'MachineGun') {
+                        this.gun = new MachineGun(this);
+                        i.kill();
+                    }
+                }
+            }
+        }
     };
     Entity.prototype.kill = function () {
         _super.prototype.kill.call(this);
@@ -588,10 +621,26 @@ var EnemySoldier = (function (_super) {
         return false;
     };
     EnemySoldier.prototype.shoot = function () {
+        var _this = this;
         if (this.gun instanceof Gun) {
             if (this.gun.ammo <= 0)
                 this.gun.reload();
-            this.gun.shoot();
+            if (this.gun instanceof Pistol)
+                this.gun.shoot();
+            if (this.gun instanceof MachineGun) {
+                var counter_1 = 0;
+                var shoot_1 = function () {
+                    _this.gun.shoot();
+                    counter_1++;
+                    if (counter_1 >= 3) {
+                        return;
+                    }
+                    setTimeout(function () {
+                        shoot_1();
+                    }, 150);
+                };
+                shoot_1();
+            }
         }
     };
     EnemySoldier.prototype.updateAim = function () {
@@ -681,28 +730,10 @@ var Player = (function (_super) {
     Player.prototype.update = function () {
         _super.prototype.update.call(this);
         this.updateAim();
-        this.pickupCheck();
         if (this.mouseDown) {
             this.shoot();
             if (this.gun instanceof Pistol) {
                 this.mouseDown = false;
-            }
-        }
-    };
-    Player.prototype.pickupCheck = function () {
-        for (var _i = 0, _a = Game.gameObjects; _i < _a.length; _i++) {
-            var i = _a[_i];
-            if (i instanceof Item) {
-                if (Game.BUMP.hit(this.sprite, i.sprite)) {
-                    if (i.type == 'Pistol') {
-                        this.gun = new Pistol(this);
-                        i.kill();
-                    }
-                    else if (i.type == 'MachineGun') {
-                        this.gun = new MachineGun(this);
-                        i.kill();
-                    }
-                }
             }
         }
     };
@@ -750,19 +781,40 @@ var Player = (function (_super) {
     Player.prototype.updateAim = function () {
         this.sprite.rotation = Util.rotateToPoint(Game.PIXI.renderer.plugins.interaction.mouse.global.x, Game.PIXI.renderer.plugins.interaction.mouse.global.y, this.sprite.x, this.sprite.y);
     };
-    Player.prototype.kill = function () {
+    Player.prototype.kill = function (reason) {
+        if (reason === void 0) { reason = 'none'; }
         _super.prototype.kill.call(this);
+        if (Game.state instanceof Play) {
+            if (reason != 'map') {
+                Game.state = new GameOver();
+            }
+        }
     };
     return Player;
 }(Entity));
 var Complete = (function () {
     function Complete() {
-        MapLoader.unloadCurrentMap();
         Game.screen = new LevelCompleteScreen();
     }
     Complete.prototype.update = function () {
     };
     return Complete;
+}());
+var Finish = (function () {
+    function Finish() {
+        Game.screen = new FinishScreen();
+    }
+    Finish.prototype.update = function () {
+    };
+    return Finish;
+}());
+var GameOver = (function () {
+    function GameOver() {
+        Game.screen = new GameOverScreen();
+    }
+    GameOver.prototype.update = function () {
+    };
+    return GameOver;
 }());
 var Play = (function () {
     function Play() {
@@ -1004,20 +1056,29 @@ var VisionLine = (function (_super) {
 var MapLoader = (function () {
     function MapLoader() {
     }
+    Object.defineProperty(MapLoader, "maps", {
+        get: function () {
+            return MapLoader._maps;
+        },
+        enumerable: true,
+        configurable: true
+    });
     MapLoader.initializeMapFiles = function () {
-        MapLoader.maps = [
+        MapLoader._maps = [
             new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
             new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
         ];
     };
     MapLoader.loadNextMap = function () {
-        var nextMap = MapLoader.maps[MapLoader.currentMapIndex + 1];
+        MapLoader.unloadCurrentMap();
+        var nextMap = MapLoader._maps[MapLoader.currentMapIndex + 1];
         MapLoader.loadMap(nextMap);
     };
     MapLoader.loadMap = function (name) {
-        this.unloadCurrentMap();
-        var mapIndex = MapLoader.maps.indexOf(name);
-        var map = MapLoader.maps[mapIndex];
+        var mapIndex = MapLoader._maps.indexOf(name);
+        console.log('MAPS: ', MapLoader._maps);
+        console.log('Loading map: ', mapIndex);
+        var map = MapLoader._maps[mapIndex];
         MapLoader.currentMapIndex = mapIndex;
         Game.tiledMapContainer.addChild(map);
         for (var _i = 0, _a = Game.tiledMapContainer.children[0].children; _i < _a.length; _i++) {
@@ -1125,7 +1186,7 @@ var MapLoader = (function () {
         }
         for (var _b = 0, gameObjectsArray_1 = gameObjectsArray; _b < gameObjectsArray_1.length; _b++) {
             var g = gameObjectsArray_1[_b];
-            if (g instanceof EnemySoldier)
+            if (g instanceof EnemySoldier || g instanceof Player)
                 g.kill('map');
             else
                 g.kill();
@@ -1155,11 +1216,15 @@ var MapLoader = (function () {
         }
         for (var _l = 0, bulletsArray_1 = bulletsArray; _l < bulletsArray_1.length; _l++) {
             var b = bulletsArray_1[_l];
-            Game.removeContainer(b);
+            Game.removeBullet(b);
         }
-        Game.tiledMapContainer.removeChild(MapLoader.maps[this.currentMapIndex]);
+        for (var _m = 0, _o = Game.tiledMapContainer.children; _m < _o.length; _m++) {
+            var c = _o[_m];
+            var index = Game.tiledMapContainer.children.indexOf(c);
+            Game.tiledMapContainer.removeChild(Game.tiledMapContainer.children[index]);
+        }
     };
-    MapLoader.maps = [];
+    MapLoader._maps = [];
     MapLoader.currentMapIndex = -1;
     return MapLoader;
 }());
@@ -1479,11 +1544,11 @@ var MachineGun = (function (_super) {
         var _this = _super.call(this, subject) || this;
         _this.textureForPlayer = PIXI.loader.resources['./images/sprites/player_machinegun.png'].texture;
         _this.textureForEnemy = PIXI.loader.resources['./images/sprites/soldier_machinegun.png'].texture;
-        _this._maxAmmo = 30;
+        _this._maxAmmo = 20;
         _this.ammo = _this.maxAmmo;
         _this._damage = 10;
         _this.shootingDelay = 0.1;
-        _this.reloadingTime = 4;
+        _this.reloadingTime = 3;
         _this.shootingSpread = 9;
         _this.minShootingSpread = 7;
         _this.gunOffset = {
@@ -1644,6 +1709,123 @@ var ActionBar = (function (_super) {
     };
     return ActionBar;
 }(PIXI.Graphics));
+var UIScreen = (function () {
+    function UIScreen() {
+        var _this = this;
+        this.clickCb = function (e) { _this.clickHandler(e); };
+        window.addEventListener('click', this.clickCb);
+        this.domElement = document.createElement('div');
+        this.domElement.classList.add('UIScreen');
+        this.domElement.style.width = Game.canvasWidth.toString() + 'px';
+        this.domElement.style.height = Game.canvasHeight.toString() + 'px';
+        document.body.appendChild(this.domElement);
+    }
+    UIScreen.prototype.remove = function () {
+        document.body.removeChild(this.domElement);
+        window.removeEventListener('click', this.clickCb);
+    };
+    return UIScreen;
+}());
+var FinishScreen = (function (_super) {
+    __extends(FinishScreen, _super);
+    function FinishScreen() {
+        var _this = _super.call(this) || this;
+        var nextBtn = document.createElement('button');
+        nextBtn.classList.add('btn');
+        nextBtn.innerHTML = 'PLAY AGAIN';
+        _this.domElement.appendChild(nextBtn);
+        var content = document.createElement('div');
+        content.classList.add('content');
+        var p = document.createElement('p');
+        p.innerHTML = 'YOU WIN!';
+        p.style.color = '#66ff66';
+        content.appendChild(p);
+        var table2 = document.createElement('table');
+        var tr_totalScore = document.createElement('tr');
+        var totalScore_title = document.createElement('td');
+        totalScore_title.appendChild(document.createTextNode('TOTAL POINTS:'));
+        tr_totalScore.appendChild(totalScore_title);
+        var totalScore_value = document.createElement('td');
+        totalScore_value.appendChild(document.createTextNode(Game.points.toString()));
+        tr_totalScore.appendChild(totalScore_value);
+        table2.appendChild(tr_totalScore);
+        var now2 = new Date();
+        var duration2 = (now2.valueOf() - Game.startTime.valueOf()) / 1000;
+        duration2 = Math.floor(duration2);
+        var tr_totalTime = document.createElement('tr');
+        var totalTime_title = document.createElement('td');
+        totalTime_title.appendChild(document.createTextNode('TOTAL TIME:'));
+        tr_totalTime.appendChild(totalTime_title);
+        var totalTime_value = document.createElement('td');
+        totalTime_value.appendChild(document.createTextNode(duration2.toString() + 's'));
+        tr_totalTime.appendChild(totalTime_value);
+        table2.appendChild(tr_totalTime);
+        content.appendChild(table2);
+        _this.domElement.appendChild(content);
+        return _this;
+    }
+    FinishScreen.prototype.remove = function () {
+        _super.prototype.remove.call(this);
+    };
+    FinishScreen.prototype.clickHandler = function (e) {
+        var target = e.target;
+        if (target.nodeName === 'BUTTON') {
+            Game.screen.remove();
+            Game.restart();
+        }
+    };
+    return FinishScreen;
+}(UIScreen));
+var GameOverScreen = (function (_super) {
+    __extends(GameOverScreen, _super);
+    function GameOverScreen() {
+        var _this = _super.call(this) || this;
+        var nextBtn = document.createElement('button');
+        nextBtn.classList.add('btn');
+        nextBtn.innerHTML = 'TRY AGAIN';
+        _this.domElement.appendChild(nextBtn);
+        var content = document.createElement('div');
+        content.classList.add('content');
+        var p = document.createElement('p');
+        p.innerHTML = 'GAME OVER';
+        p.style.color = '#e00d0d';
+        content.appendChild(p);
+        var table2 = document.createElement('table');
+        var tr_totalScore = document.createElement('tr');
+        var totalScore_title = document.createElement('td');
+        totalScore_title.appendChild(document.createTextNode('TOTAL POINTS:'));
+        tr_totalScore.appendChild(totalScore_title);
+        var totalScore_value = document.createElement('td');
+        totalScore_value.appendChild(document.createTextNode(Game.points.toString()));
+        tr_totalScore.appendChild(totalScore_value);
+        table2.appendChild(tr_totalScore);
+        var now2 = new Date();
+        var duration2 = (now2.valueOf() - Game.startTime.valueOf()) / 1000;
+        duration2 = Math.floor(duration2);
+        var tr_totalTime = document.createElement('tr');
+        var totalTime_title = document.createElement('td');
+        totalTime_title.appendChild(document.createTextNode('TOTAL TIME:'));
+        tr_totalTime.appendChild(totalTime_title);
+        var totalTime_value = document.createElement('td');
+        totalTime_value.appendChild(document.createTextNode(duration2.toString() + 's'));
+        tr_totalTime.appendChild(totalTime_value);
+        table2.appendChild(tr_totalTime);
+        content.appendChild(table2);
+        _this.domElement.appendChild(content);
+        return _this;
+    }
+    GameOverScreen.prototype.remove = function () {
+        _super.prototype.remove.call(this);
+    };
+    GameOverScreen.prototype.clickHandler = function (e) {
+        var target = e.target;
+        if (target.nodeName === 'BUTTON') {
+            Game.screen.remove();
+            Game.restart();
+        }
+    };
+    return GameOverScreen;
+}(UIScreen));
 var HealthBar = (function (_super) {
     __extends(HealthBar, _super);
     function HealthBar(entity) {
@@ -1695,21 +1877,6 @@ var HealthBar = (function (_super) {
     };
     return HealthBar;
 }(PIXI.Container));
-var UIScreen = (function () {
-    function UIScreen() {
-        var _this = this;
-        this.domElement = document.createElement('div');
-        this.domElement.classList.add('UIScreen');
-        this.domElement.style.width = Game.canvasWidth.toString() + 'px';
-        this.domElement.style.height = Game.canvasHeight.toString() + 'px';
-        document.body.appendChild(this.domElement);
-        document.addEventListener('click', function (e) { return _this.clickHandler(e); });
-    }
-    UIScreen.prototype.remove = function () {
-        document.body.removeChild(this.domElement);
-    };
-    return UIScreen;
-}());
 var LevelCompleteScreen = (function (_super) {
     __extends(LevelCompleteScreen, _super);
     function LevelCompleteScreen() {
@@ -1800,6 +1967,7 @@ var StartScreen = (function (_super) {
     StartScreen.prototype.clickHandler = function (e) {
         var target = e.target;
         if (target.nodeName === 'BUTTON') {
+            console.log('StartScreen ClickHandler');
             Game.screen.remove();
             Game.state = new Play();
         }

@@ -1,6 +1,7 @@
 /// <reference path="UIScreen.ts"/>
 
 class StartScreen extends UIScreen {
+
     constructor() {
         super()
 
@@ -22,6 +23,7 @@ class StartScreen extends UIScreen {
     public clickHandler(e: MouseEvent): void {
         let target = e.target as HTMLElement
         if (target.nodeName === 'BUTTON') {
+            console.log('StartScreen ClickHandler')
             Game.screen.remove()
             Game.state = new Play()
         }
