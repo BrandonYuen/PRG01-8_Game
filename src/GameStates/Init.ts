@@ -27,7 +27,13 @@ class Init implements GameState {
 			.add('./json/blood.json')
 			// TileMaps
 			.add('./maps/01_intro.tmx')
-			.add('./maps/03_sandwich.tmx')
+			.add('./maps/02_square.tmx')
+			.add('./maps/03_machinegun.tmx')
+			.add('./maps/04_sandwich.tmx')
+			.add('./maps/05_milan.tmx')
+			.add('./maps/06_raid.tmx')
+			.add('./maps/07_idk.tmx')
+			.add('./maps/08_surrounded.tmx')
 			.load(() => this.onLoaderComplete())
 
 		// Load sounds

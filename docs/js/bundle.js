@@ -34,7 +34,13 @@ var Init = (function () {
             .add('./json/bulletTrail.json')
             .add('./json/blood.json')
             .add('./maps/01_intro.tmx')
-            .add('./maps/03_sandwich.tmx')
+            .add('./maps/02_square.tmx')
+            .add('./maps/03_machinegun.tmx')
+            .add('./maps/04_sandwich.tmx')
+            .add('./maps/05_milan.tmx')
+            .add('./maps/06_raid.tmx')
+            .add('./maps/07_idk.tmx')
+            .add('./maps/08_surrounded.tmx')
             .load(function () { return _this.onLoaderComplete(); });
         Game.sounds.pistol = [];
         Game.sounds.pistol[0] = new Howl({
@@ -577,6 +583,7 @@ var EnemySoldier = (function (_super) {
         _this.sprite.anchor.x = 0.5;
         _this.sprite.anchor.y = 0.5;
         Game.enemyCount++;
+        _this.health = _this._maxHealth;
         return _this;
     }
     EnemySoldier.prototype.update = function () {
@@ -1066,7 +1073,13 @@ var MapLoader = (function () {
     MapLoader.initializeMapFiles = function () {
         MapLoader._maps = [
             new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
-            new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
+            new PIXI.extras.TiledMap("./maps/02_square.tmx"),
+            new PIXI.extras.TiledMap("./maps/03_machinegun.tmx"),
+            new PIXI.extras.TiledMap("./maps/04_sandwich.tmx"),
+            new PIXI.extras.TiledMap("./maps/05_milan.tmx"),
+            new PIXI.extras.TiledMap("./maps/06_raid.tmx"),
+            new PIXI.extras.TiledMap("./maps/07_idk.tmx"),
+            new PIXI.extras.TiledMap("./maps/08_surrounded.tmx")
         ];
     };
     MapLoader.loadNextMap = function () {

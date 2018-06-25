@@ -1,5 +1,5 @@
 /// <reference path="GameStates/Init.ts"/>
-/// <reference path="../dist/js/pixi-bump.js"/>
+/// <reference path="../docs/js/pixi-bump.js"/>
 
 class Game {
 	public static canvasWidth = 1600

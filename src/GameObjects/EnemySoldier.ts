@@ -22,6 +22,9 @@ class EnemySoldier extends Entity {
 		
 		// Add enemy count to game state
 		Game.enemyCount++
+
+		// Update custom health
+		this.health = this._maxHealth
     }
     
     public update(): void {

@@ -10,47 +10,52 @@
  </layer>
  <layer name="Floors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgF5IAUIE6AYnzySUjsFDRxGMYGkNXjUoPsBmRzkc3Hp58BSR6XPxIYUO1At5NQOFADwOwZBaNguAAAE9EROQ==
   </data>
  </layer>
  <layer name="Doors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFgxFsZxxoFwwecJkRgkfBKBguAAB6rgJh
+  </data>
+ </layer>
+ <layer name="Decorations" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFtAJSTAwMmowMDM5A7AjETowD7SLywH6guw8A8cEh6v5RMAoGGwAA05ADUw==
   </data>
  </layer>
  <layer name="Player" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgxXYMg60C0bBKBgFtAAA9L8APw==
+   eJxjYBgF1AK2jAPtglEwCkbBUAAACC4APw==
   </data>
  </layer>
  <layer name="EnemiesStationary" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgF1AZ2jAPtglEwCsgDo2mXPgAAYvkAfw==
+   eJxjYBjawI5xoF0wCkYKGE1ro4BaAAC/gQB/
   </data>
  </layer>
  <layer name="EnemiesVertical" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFAwEcGAfaBaMAHYzGySigFwAApvEAgw==
   </data>
  </layer>
  <layer name="EnemiesHorizontal" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFwwHYMw60C4YXGMnhCfP7SA4DWgMAOZIBAQ==
   </data>
  </layer>
  <layer name="Pistols" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgxWwMw60C0bBKBgFtAAAJFcACQ==
+   eJxjYBgFgxmwMw60C0bBKBgF1AYAJDcACQ==
   </data>
  </layer>
  <layer name="MachineGuns" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjILhA5QYB9oFhAEAG+MAJA==
+   eJxjYBgFo2B4AiVG2qofrmA0HGgPAOY5AGo=
   </data>
  </layer>
  <layer name="Walls" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJzjZ2RgECQCCxGpDh0LALEOEBMDRIlUhw50SLCDXDBQduhT2U5sduAKd3LtJiWsyA3TgbIDV5hQM+2SaxYpdlAbDDY7KEm7WkSWbcJklonaQAwALOMJYg==
+   eJzjZ2RgEKQhFgBiHSCmJdBBsqMMiCuQcDmaWnR5QhimH9mOGjQzJxPgEwIw9Tp4wgqmJo2RenZMw6EGF58cOyYyoIbnJDQ96PLouBpJ7XQk/fjCilpgIO2QAIrJoolbAvlSQCwNpdHl0YEFI347TPHoxyeHTR0uO4zR3AnzAwjLILGx+QWm1oSAHdQEIPO1aFwmagMxAOBbInw=
   </data>
  </layer>
 </map>

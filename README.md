@@ -1,6 +1,11 @@
 # PRG01-8_Game
 This project is a top-down shooter made in Typescript. It was made as a school assignment with the purpose of learning OOP Design patterns and principles.
 
+I really like games with smooth mechanics so I've put extra attention on that in this game. For example, if you pay close attention the bullets and gunshot effect actually originate from the gun barrels and the enemy AI's vision comes from their heads. If they can't see you, they won't shoot you. Next to that I've also added blood, bullet trace and bullet impact particles, because it looks nice.
+
+## Goal
+The goal of the game is to kill all the enemies and complete all levels. Some enemies move vertically or horizontally and some have a better gun than others. Plan your moves carefully and try to expose yourself as less as possible. The levels become harder as you complete them and if you die you need to start at level 1.
+
 ## How to play
 You can play the game on these [Github Docs](https://brandonyuen.github.io/PRG01-8_Game).
 
@@ -12,6 +17,7 @@ npm install
 ```
 3. Edit code & build using Typescript compiler of Visual Studio Code with `ctrl+b`
 4. Start express web server
+5. You can also create levels yourself by installing **[Tiled](https://www.mapeditor.org/)* and using the **.tsx** files in `docs/maps/*` as examples. (However, currently the levels are hard-coded in `Init.ts` and `MapLoader.ts`. So you would need your custom levels there too, you'll figure it out.)
 ```
 node app
 ```
@@ -29,7 +35,7 @@ De class `Game` is een singleton omdat er maar 1 instantie van kan bestaan in he
 ## Polymorphism
 Polymorfisme word op vele plekken toegepast. Zo zijn `Player` en `EnemySoldier` een extension van een abstract `Entity`, en een `Entity` een extension van een abstract `GameObject`. Ook is heeft een `Entity` een `Gun`, welke zowel een `Pistol` als een `Machinegun` kan zijn. Deze `Gun` weet wie zijn `subject` (eigenaar is) en roept bijvoorbeeld de `ReloadBar` en `AmmoBar` van zijn `subject` aan als de `Gun` schiet.
 
-Ook heeft `Game` een Array met `gameObjects[]`, dit kunnen zowel `Entity`'s zijn (`Player` en `EnemyPlayer`) als `Item`'s (pickups).
+Ook heeft `Game` een Array met `gameObjects[]`, dit kunnen zowel `Entity`'s zijn (`Player` en `EnemyPlayer`) als `Item`'s (pickups), want die zijn allemaal `gameObject`.
 
 ## Strategy
 Een `Entity` kan een `Gun` hebben. Er zijn 2 soorten Gun's in het spel: `Pistol` en `MachineGun`, deze extenden de abstracte class `Gun`. Als een entity zijn `shoot()` method word aangeroepen word de `Gun.shoot()` aangeroepen. Deze verschilt per `Gun` want een `Pistol` heeft bijvoorbeeld minder kogels dan een `MachineGun` en kan sneller achter elkaar schieten, maar heeft ook een grotere fire spread (minder accuraat).

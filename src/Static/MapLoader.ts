@@ -11,7 +11,13 @@ class MapLoader {
     static initializeMapFiles() {
         MapLoader._maps = [
             new PIXI.extras.TiledMap("./maps/01_intro.tmx"),
-            new PIXI.extras.TiledMap("./maps/03_sandwich.tmx")
+            new PIXI.extras.TiledMap("./maps/02_square.tmx"),
+            new PIXI.extras.TiledMap("./maps/03_machinegun.tmx"),
+            new PIXI.extras.TiledMap("./maps/04_sandwich.tmx"),
+            new PIXI.extras.TiledMap("./maps/05_milan.tmx"),
+            new PIXI.extras.TiledMap("./maps/06_raid.tmx"),
+            new PIXI.extras.TiledMap("./maps/07_idk.tmx"),
+            new PIXI.extras.TiledMap("./maps/08_surrounded.tmx")
         ]
     }
 

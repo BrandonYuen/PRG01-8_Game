@@ -10,47 +10,47 @@
  </layer>
  <layer name="Floors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJztkVEKwDAIQ72qFO9/hf5MeAt2FsbYTwMiVJsYNTt4A/+Yf1wRkh05kLOHbx2SK/96wa/1sLverga5MlhLbXpg3xPovdrTypP66jTIpzuvOHWODno/zq4eq9uMDY2DfzEB8rkopg==
   </data>
  </layer>
  <layer name="Doors" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFlIBLjAPtgqELrjBi8okRGyxg5yB11ygY/AAALVwFtw==
   </data>
  </layer>
  <layer name="Player" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgxXYMg60C0bBKBgFtAAA9L8APw==
+   eJxjYBh+wJZxoF0wCkbBKBgFuAEAJT4APw==
   </data>
  </layer>
  <layer name="EnemiesStationary" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgF1AZ2jAPtglEwCsgDo2mXPgAAYvkAfw==
+   eJxjYBgFo2AUDDZgxzjQLhgFtAQAe5cAQA==
   </data>
  </layer>
  <layer name="EnemiesVertical" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFo4A84MA40C4YBehgNE6GBgAAQ2kAgw==
   </data>
  </layer>
  <layer name="EnemiesHorizontal" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRQE8AAAV4AAE=
+   eJxjYBgFQxHYM45Mu4cKGA2jUYAPAABOkwDB
   </data>
  </layer>
  <layer name="Pistols" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgxWwMw60C0bBKBgFtAAAJFcACQ==
+   eJxjYBh+gJ1xoF0wCkbBKBgFuAEAKpcACQ==
   </data>
  </layer>
  <layer name="MachineGuns" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjILhA5QYB9oFhAEAG+MAJA==
+   eJxjYBgFo4A0oMQ40C4Y/mA0jIc3AAC5YgBH
   </data>
  </layer>
  <layer name="Walls" width="25" height="14">
   <data encoding="base64" compression="zlib">
-   eJzjZ2RgECQCCxGpDh0LALEOEBMDRIlUhw50SLCDXDBQduhT2U5sduAKd3LtJiWsyA3TgbIDV5hQM+2SaxYpdlAbDDY7KEm7WkSWbcJklonaQAwALOMJYg==
+   eJzjZ2RgEKQhFgBiHSCmJdAZADvKgLgayp4OxJVAXEEGLsdjx2Q0N6DziQXI+gaDHVMYUMOuAokPE6vEIjaVBDtqSHQzNjFCdhADKLVjGg3smMiAmgarGAinU2xqJuGxgxaAXnZo0bhM1AZiAMLTKS4=
   </data>
  </layer>
 </map>

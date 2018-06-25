@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="25" height="14" tilewidth="64" tileheight="64" infinite="0" nextobjectid="1">
+ <tileset firstgid="1" name="tilesheet_complete" tilewidth="64" tileheight="64" tilecount="540" columns="27">
+  <image source="tilesets/tilesheet_complete.png" width="1728" height="1280"/>
+ </tileset>
+ <layer name="Grass" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJyVlMEOBCEIQ0G84zdu9v+/YedgkzeNHvZARhmgtqAzIuaflo/VNvnG/tYhvvBN1OjHFva59439AJ77y3IZt6xW75zeOfw/9rrgl+ncBdwFHgvcE/HDNFmoI7/OozNUvHnRl/CNC6ZrzhydecSbr/eROiq2zE8tyK8NXzg+B9Pyp63JnXnsp89jx12TtLVjkKtqkaewJ2I4g3moVxfMUy32xHWg9t/HPpfe+J1Sv31uiZXx5teIJT/nwnvLedaaM72w97vos8z5o26nt4Xcqafmmjk8PzGdl/fVtZ2HWmn5fjf5fpHnD+Z9ByA=
+  </data>
+ </layer>
+ <layer name="Floors" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgY8JbO+qgN3hGp7j1NXUE9kADEKUCcBKUTkOgkJDlkdUlQvcSGRQKSfhhGtw/ZHpjd+AB6eoC5KwGJnYImnoCFTQqAuRVmNgyji6O7gVYA3b/kAFxxqMKIsAM5LAkBcvJpAgPCL8S4DRsgRe1AAgDg5SMV
+  </data>
+ </layer>
+ <layer name="Decoration" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBh4cInO+gYSXB1oB5AAeBgH2gUDByiJp09UcwVxwASITWlshz8QB9DYjiwgzkbi44oDUvP9YCwnAJSMCKQ=
+  </data>
+ </layer>
+ <layer name="Doors" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUDAVwmRGC8YEdBOSpAehhx3AHABjbAxs=
+  </data>
+ </layer>
+ <layer name="Player" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo4B2wJZxoF0wCkbB4AMAxUcAPw==
+  </data>
+ </layer>
+ <layer name="EnemiesStationary" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJxjYBh5wJ5xoF0wCkbB4AOj+YJ+AACBhQCB
+  </data>
+ </layer>
+ <layer name="EnemiesVertical" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFIwHYMw60C0YBLcFo/A4tAABVhQCB
+  </data>
+ </layer>
+ <layer name="EnemiesHorizontal" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo4C+wJ5xoF0wCkbBwAIAxncAQQ==
+  </data>
+ </layer>
+ <layer name="Pistols" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJxjYBj+gJ1xoF0wCkbBKBgFCAAAKhcACQ==
+  </data>
+ </layer>
+ <layer name="MachineGuns" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIKBA0qMA+0C+gMAJtMAJA==
+  </data>
+ </layer>
+ <layer name="Walls" width="25" height="14" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJzjZ2RgECQCCxGpDh0LALEOEJMKPpCgR2cY21EGxBVk4nIi7ZhMvBMZnIF6HYHYBUpj00upHehgMNqxHyh+AIgPkhC/NUTaMZEBMy6rkeSnM+CPY2LsIAUQE67UtmMaDexAD9dJOOzQIrJsEyazTNQGYgDCAiNC
+  </data>
+ </layer>
+</map>
