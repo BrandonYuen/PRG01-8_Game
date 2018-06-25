@@ -61,6 +61,15 @@ Pixi-particles gebuik ik voor alle particles die te zien zijn: bloed, bullet tra
 ### Bots met AI
 De enemies zijn "slim", ze kunnen lopen en detecteren wanneer ze zicht hebben op de speler.
 
+### Visueel aantrekkelijk
+Gebruik van spritesheet, dus consistent en ook meerdere particle effect. Ook zijn er UI's, zoals Startscherm, eindscherm, level complete scherm, etc.
+
+### Geluid en muziek
+De game heeft meerdere geluiden.
+
+### Levels met oplopende moeilijkheidsgraad
+Er zijn een aantal levels in het spel die moeilijker worden per level.
+
 ## Pull Request & Code Review
 *Pull request Week 4 for Milan's game: [Link](https://github.com/milansosef/TypescriptGame_PRG01-8/pull/1)*
 *Code review Week 6 for Imani's game: [Link](https://github.com/maniflames/dodge/issues/2)*
