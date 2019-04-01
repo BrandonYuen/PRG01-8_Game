@@ -12,7 +12,7 @@ class EnemySoldier extends Entity {
 		super(stage, texture)
 
 		this.AI = new Patrol(this, patrolDirection)
-		this.gun = new Pistol(this)
+		this.gun = GunFactory.getGun('pistol', this)
 
 		// Position
 		this.sprite.x = Game.canvasWidth - 300

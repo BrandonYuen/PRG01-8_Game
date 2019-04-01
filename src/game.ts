@@ -15,7 +15,7 @@ class Game {
 	public static walls: Array<PIXI.extras.AnimatedSprite> = []
 	public static emitters: Array<any> = []
 	public static containers: Array<PIXI.Container> = []
-	public static gameObjects: Array<GameObject> = []
+	public static gameObjects: Array<GameObject> = [] // COMPOSITE PATTERN
 
 	public static state: GameState
 	public static screen: UIScreen

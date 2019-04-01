@@ -16,7 +16,7 @@ abstract class Entity extends GameObject implements Subject {
     private _healthBar:HealthBar = new HealthBar(this)
     protected _maxHealth:number = 100
     private _health:number = this._maxHealth
-    protected _gun:Gun = new Unarmed(this)
+    protected _gun:Gun = GunFactory.getGun('unarmed', this)
     protected visionLine:VisionLine = new VisionLine(this)
     
     constructor(stage: PIXI.Container, texture: PIXI.Texture) {
@@ -93,13 +93,8 @@ abstract class Entity extends GameObject implements Subject {
             if (i instanceof Item) {
                 if (Game.BUMP.hit(this.sprite, i.sprite)) {
                     // Player picks up this item
-                    if (i.type == 'Pistol') {
-						this.gun = new Pistol(this) 
-						i.kill()
-                    } else if (i.type == 'MachineGun') {
-						this.gun = new MachineGun(this)
-						i.kill()
-					}
+                    this.gun = GunFactory.getGun(i.type, this)
+                    i.kill()
                 }
             }
         }

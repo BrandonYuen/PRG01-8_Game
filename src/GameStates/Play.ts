@@ -2,33 +2,33 @@ class Play implements GameState {
 
     constructor() {
 		
-		// Load next map
-		MapLoader.loadNextMap()
+			// Load next map
+			MapLoader.loadNextMap()
 
-		// Start times
-		if (!Game.startTime) {
-			Game.startTime = new Date()
-		}
-		Game.levelStartTime = new Date()
+			// Start times
+			if (!Game.startTime) {
+				Game.startTime = new Date()
+			}
+			Game.levelStartTime = new Date()
 
-		Game.levelPoints = 0
-	}
-
-    public update(): void {
-
-		// Update all bullets
-		for (let b of Game.bullets) {
-			b.update()
+			Game.levelPoints = 0
 		}
 
-		// Update all emitters
-		for (let e of Game.emitters) {
-			e.update()
-		}
+		public update(): void {
 
-		// Update all emitters
-		for (let g of Game.gameObjects) {
-			g.update()
-		}
+			// Update all bullets
+			for (let b of Game.bullets) {
+				b.update()
+			}
+
+			// Update all emitters
+			for (let e of Game.emitters) { // ITERATOR PATTERN
+				e.update()
+			}
+
+			// Update all emitters
+			for (let g of Game.gameObjects) { // COMPOSITE PATTERN
+				g.update()
+			}
     }
 }

@@ -454,7 +454,7 @@ var Entity = (function (_super) {
         _this._healthBar = new HealthBar(_this);
         _this._maxHealth = 100;
         _this._health = _this._maxHealth;
-        _this._gun = new Unarmed(_this);
+        _this._gun = GunFactory.getGun('unarmed', _this);
         _this.visionLine = new VisionLine(_this);
         _this.visionLine.visible = false;
         _this.update();
@@ -544,14 +544,8 @@ var Entity = (function (_super) {
             var i = _a[_i];
             if (i instanceof Item) {
                 if (Game.BUMP.hit(this.sprite, i.sprite)) {
-                    if (i.type == 'Pistol') {
-                        this.gun = new Pistol(this);
-                        i.kill();
-                    }
-                    else if (i.type == 'MachineGun') {
-                        this.gun = new MachineGun(this);
-                        i.kill();
-                    }
+                    this.gun = GunFactory.getGun(i.type, this);
+                    i.kill();
                 }
             }
         }
@@ -577,7 +571,7 @@ var EnemySoldier = (function (_super) {
         _this.pointsOnKill = 10;
         _this._maxHealth = 50;
         _this.AI = new Patrol(_this, patrolDirection);
-        _this.gun = new Pistol(_this);
+        _this.gun = GunFactory.getGun('pistol', _this);
         _this.sprite.x = Game.canvasWidth - 300;
         _this.sprite.y = Game.canvasHeight / 2;
         _this.sprite.anchor.x = 0.5;
@@ -1550,6 +1544,24 @@ var Gun = (function () {
         this.subject.ammoBar.setText(this.ammo.toString() + '/' + this.maxAmmo.toString());
     };
     return Gun;
+}());
+var GunFactory = (function () {
+    function GunFactory() {
+    }
+    GunFactory.getGun = function (type, subject) {
+        console.log('gunFactory: getting a ', type.toUpperCase());
+        switch (type.toUpperCase()) {
+            case 'PISTOL':
+                return new Pistol(subject);
+                break;
+            case 'MACHINEGUN':
+                return new MachineGun(subject);
+                break;
+            default:
+                return new Unarmed(subject);
+        }
+    };
+    return GunFactory;
 }());
 var MachineGun = (function (_super) {
     __extends(MachineGun, _super);
