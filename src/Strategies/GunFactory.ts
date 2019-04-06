@@ -7,10 +7,8 @@ class GunFactory {
         switch (type.toUpperCase()) {
             case 'PISTOL':
                 return new Pistol(subject)
-                break
             case 'MACHINEGUN':
                 return new MachineGun(subject)
-                break
             default:
                 return new Unarmed(subject)
         }

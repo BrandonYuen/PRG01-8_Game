@@ -62,8 +62,16 @@ abstract class Entity extends GameObject implements Subject {
         return this._maxHealth
     }
 
+    public set maxHealth(maxHealth: number) {
+        this._maxHealth = maxHealth
+    }
+
     public get baseSpeed() {
         return this._baseSpeed
+    }
+
+    public set baseSpeed(baseSpeed: number) {
+        this._baseSpeed = baseSpeed
     }
 
     public get reloadBar() {
@@ -93,7 +101,7 @@ abstract class Entity extends GameObject implements Subject {
             if (i instanceof Item) {
                 if (Game.BUMP.hit(this.sprite, i.sprite)) {
                     // Player picks up this item
-                    this.gun = GunFactory.getGun(i.type, this)
+                    i.pickup(this)
                     i.kill()
                 }
             }

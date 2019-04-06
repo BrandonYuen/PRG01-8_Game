@@ -1,4 +1,6 @@
-class Item extends GameObject {
+/// <reference path="GameObject.ts"/>
+
+abstract class Item extends GameObject {
     private _type: string
     private maxScale: number = 1.5
     private scalingState: string = 'expanding'
@@ -15,6 +17,8 @@ class Item extends GameObject {
     public get type(): string {
         return this._type
     }
+
+    public pickup(subject: Entity) {}
     
     update(): void {
         this.sprite.rotation = Util.toRadiant(Util.toDegrees(this.sprite.rotation) + 2)

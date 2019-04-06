@@ -17,6 +17,8 @@ class Init implements GameState {
 			.add('./images/sprites/soldier_machinegun.png')
 			.add('./images/sprites/weapon_pistol.png')
 			.add('./images/sprites/weapon_machinegun.png')
+			.add('./images/sprites/powerup_speed.png')
+			.add('./images/sprites/powerup_health.png')
 			// Particles
 			.add('./images/particles/Fire.png')
 			.add('./images/particles/particle.png')

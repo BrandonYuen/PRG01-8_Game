@@ -1,54 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="25" height="14" tilewidth="64" tileheight="64" infinite="0" nextobjectid="1">
+<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="25" height="14" tilewidth="64" tileheight="64" infinite="0" nextlayerid="13" nextobjectid="1">
  <tileset firstgid="1" name="tilesheet_complete" tilewidth="64" tileheight="64" tilecount="540" columns="27">
   <image source="tilesets/tilesheet_complete.png" width="1728" height="1280"/>
  </tileset>
- <layer name="Grass" width="25" height="14">
+ <layer id="1" name="Grass" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJyVlFkOwzAIBdnuf+a0kitNpihSPhA2hsfybE9EzEvJj/SRn62O7sW/oVMYxMyD09qnbPQb2RsxzFmQwZpYjXjXTZyMex+F9QCjFG/8ko16ZMu4173l9MwZw1or/ns2Dy0/2jmL0Tnzl7Cdp7DnehTr3nLZP80ktXYO9ur74BmS/1p8zPVWbwvLuTceycnGzUi3dC3ie8xZbu/C2OTZnPsNGN/i+8eY7W9h756na2r5+P77D9n4T+Exn/8vvzfX9JULIsoDmQ==
   </data>
  </layer>
- <layer name="Floors" width="25" height="14">
+ <layer id="2" name="Floors" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRQE8AAAV4AAE=
   </data>
  </layer>
- <layer name="Doors" width="25" height="14">
+ <layer id="3" name="Doors" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRQE8AAAV4AAE=
   </data>
  </layer>
- <layer name="Player" width="25" height="14">
+ <layer id="4" name="Player" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFgxXYMg60C0bBKBgFtAAA9L8APw==
   </data>
  </layer>
- <layer name="EnemiesStationary" width="25" height="14">
+ <layer id="5" name="EnemiesStationary" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgF1AZ2jAPtglEwCsgDo2mXPgAAYvkAfw==
   </data>
  </layer>
- <layer name="EnemiesVertical" width="25" height="14">
+ <layer id="6" name="EnemiesVertical" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRQE8AAAV4AAE=
   </data>
  </layer>
- <layer name="EnemiesHorizontal" width="25" height="14">
+ <layer id="7" name="EnemiesHorizontal" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRQE8AAAV4AAE=
   </data>
  </layer>
- <layer name="Pistols" width="25" height="14">
+ <layer id="8" name="Pistols" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFgxWwMw60C0bBKBgFtAAAJFcACQ==
   </data>
  </layer>
- <layer name="MachineGuns" width="25" height="14">
+ <layer id="11" name="PowerupSpeed" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFIxEoMw60C0bBKBi5AACDdwAl
+  </data>
+ </layer>
+ <layer id="12" name="PowerupSpeedAndHealth" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUDBbQNtAOGAV0AQAE9wCH
+  </data>
+ </layer>
+ <layer id="9" name="MachineGuns" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjILhA5QYB9oFhAEAG+MAJA==
   </data>
  </layer>
- <layer name="Walls" width="25" height="14">
+ <layer id="10" name="Walls" width="25" height="14">
   <data encoding="base64" compression="zlib">
    eJzjZ2RgECQCCxGpDh0LALEOEBMDRIlUhw50SLCDXDBQduhT2U5sduAKd3LtJiWsyA3TgbIDV5hQM+2SaxYpdlAbDDY7KEm7WkSWbcJklonaQAwALOMJYg==
   </data>

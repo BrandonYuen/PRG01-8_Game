@@ -43,7 +43,7 @@ class MapLoader {
 			switch (layer.name) {
 				case 'Pistols':
 					for (let e of layer.children) {
-						let item = new Item('Pistol', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_pistol.png'].texture)
+						let item = new GunItem('Pistol', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_pistol.png'].texture)
 						Game.gameObjects.push(item)
 						console.log('Placed Pistol with index: ', Game.gameObjects.indexOf(item))
 						Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32
@@ -55,7 +55,7 @@ class MapLoader {
 					break
 				case 'MachineGuns':
 					for (let e of layer.children) {
-						let item = new Item('MachineGun', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_machinegun.png'].texture)
+						let item = new GunItem('MachineGun', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_machinegun.png'].texture)
 						Game.gameObjects.push(item)
 						console.log('Placed MachineGun with index: ', Game.gameObjects.indexOf(item))
 						Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32
@@ -65,6 +65,38 @@ class MapLoader {
 						e.visible = false
 					}
 					break
+                // DECORATOR PATTERN
+                case 'PowerupSpeed':
+                    for (let e of layer.children) {
+                        let stage = Game.PIXI.stage
+                        let texture = PIXI.loader.resources['./images/sprites/powerup_speed.png'].texture
+                        let item = new PowerupItem('PowerupSpeed', stage, texture)
+                        item = new SpeedPowerupEffect(item, stage, texture)
+                        Game.gameObjects.push(item)
+                        console.log('Placed PowerupSpeed with index: ', Game.gameObjects.indexOf(item))
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32
+                    } for (let e of layer.children) {
+                        // Remove dummy object
+                        e.visible = false
+                    }
+                    break
+                case 'PowerupSpeedAndHealth':
+                    for (let e of layer.children) {
+                        let stage = Game.PIXI.stage
+                        let texture = PIXI.loader.resources['./images/sprites/powerup_health.png'].texture
+                        let item = new PowerupItem('PowerupSpeedAndHealth', stage, texture)
+                        item = new SpeedPowerupEffect(item, stage, texture)
+                        item = new HealthPowerupEffect(item, stage, texture)
+                        Game.gameObjects.push(item)
+                        console.log('Placed PowerupSpeed with index: ', Game.gameObjects.indexOf(item))
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32
+                    } for (let e of layer.children) {
+                        // Remove dummy object
+                        e.visible = false
+                    }
+                    break
 				case 'Player':
 					for (let p of layer.children) {
 						let player = new Player(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture)

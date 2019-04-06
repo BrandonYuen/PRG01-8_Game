@@ -27,6 +27,8 @@ var Init = (function () {
             .add('./images/sprites/soldier_machinegun.png')
             .add('./images/sprites/weapon_pistol.png')
             .add('./images/sprites/weapon_machinegun.png')
+            .add('./images/sprites/powerup_speed.png')
+            .add('./images/sprites/powerup_health.png')
             .add('./images/particles/Fire.png')
             .add('./images/particles/particle.png')
             .add('./json/gunShot.json')
@@ -500,12 +502,18 @@ var Entity = (function (_super) {
         get: function () {
             return this._maxHealth;
         },
+        set: function (maxHealth) {
+            this._maxHealth = maxHealth;
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Entity.prototype, "baseSpeed", {
         get: function () {
             return this._baseSpeed;
+        },
+        set: function (baseSpeed) {
+            this._baseSpeed = baseSpeed;
         },
         enumerable: true,
         configurable: true
@@ -544,7 +552,7 @@ var Entity = (function (_super) {
             var i = _a[_i];
             if (i instanceof Item) {
                 if (Game.BUMP.hit(this.sprite, i.sprite)) {
-                    this.gun = GunFactory.getGun(i.type, this);
+                    i.pickup(this);
                     i.kill();
                 }
             }
@@ -678,6 +686,7 @@ var Item = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Item.prototype.pickup = function (subject) { };
     Item.prototype.update = function () {
         this.sprite.rotation = Util.toRadiant(Util.toDegrees(this.sprite.rotation) + 2);
         if (this.scalingState == 'expanding') {
@@ -697,6 +706,16 @@ var Item = (function (_super) {
     };
     return Item;
 }(GameObject));
+var GunItem = (function (_super) {
+    __extends(GunItem, _super);
+    function GunItem() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    GunItem.prototype.pickup = function (subject) {
+        subject.gun = GunFactory.getGun(this.type, subject);
+    };
+    return GunItem;
+}(Item));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(stage, texture) {
@@ -793,6 +812,52 @@ var Player = (function (_super) {
     };
     return Player;
 }(Entity));
+var PowerupItem = (function (_super) {
+    __extends(PowerupItem, _super);
+    function PowerupItem() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    PowerupItem.prototype.pickup = function (subject) {
+        console.log('Picked up a powerup.');
+    };
+    return PowerupItem;
+}(Item));
+var PowerupDecorator = (function (_super) {
+    __extends(PowerupDecorator, _super);
+    function PowerupDecorator(p, stage, texture) {
+        var _this = _super.call(this, p.type, stage, texture) || this;
+        _this.powerupItem = p;
+        return _this;
+    }
+    PowerupDecorator.prototype.pickup = function (subject) {
+        this.powerupItem.pickup(subject);
+    };
+    return PowerupDecorator;
+}(PowerupItem));
+var SpeedPowerupEffect = (function (_super) {
+    __extends(SpeedPowerupEffect, _super);
+    function SpeedPowerupEffect() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SpeedPowerupEffect.prototype.pickup = function (subject) {
+        _super.prototype.pickup.call(this, subject);
+        console.log('Picked up a SPEED powerup (+0.10 BaseSpeed).');
+        subject.baseSpeed += 0.10;
+    };
+    return SpeedPowerupEffect;
+}(PowerupDecorator));
+var HealthPowerupEffect = (function (_super) {
+    __extends(HealthPowerupEffect, _super);
+    function HealthPowerupEffect() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    HealthPowerupEffect.prototype.pickup = function (subject) {
+        _super.prototype.pickup.call(this, subject);
+        console.log('Picked up a HEALTH powerup (+50 MaxHealth).');
+        subject.health += 50;
+    };
+    return HealthPowerupEffect;
+}(PowerupDecorator));
 var Complete = (function () {
     function Complete() {
         Game.screen = new LevelCompleteScreen();
@@ -1095,7 +1160,7 @@ var MapLoader = (function () {
                 case 'Pistols':
                     for (var _b = 0, _c = layer.children; _b < _c.length; _b++) {
                         var e = _c[_b];
-                        var item = new Item('Pistol', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_pistol.png'].texture);
+                        var item = new GunItem('Pistol', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_pistol.png'].texture);
                         Game.gameObjects.push(item);
                         console.log('Placed Pistol with index: ', Game.gameObjects.indexOf(item));
                         Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
@@ -1109,7 +1174,7 @@ var MapLoader = (function () {
                 case 'MachineGuns':
                     for (var _f = 0, _g = layer.children; _f < _g.length; _f++) {
                         var e = _g[_f];
-                        var item = new Item('MachineGun', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_machinegun.png'].texture);
+                        var item = new GunItem('MachineGun', Game.PIXI.stage, PIXI.loader.resources['./images/sprites/weapon_machinegun.png'].texture);
                         Game.gameObjects.push(item);
                         console.log('Placed MachineGun with index: ', Game.gameObjects.indexOf(item));
                         Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
@@ -1120,54 +1185,61 @@ var MapLoader = (function () {
                         e.visible = false;
                     }
                     break;
-                case 'Player':
+                case 'PowerupSpeed':
                     for (var _k = 0, _l = layer.children; _k < _l.length; _k++) {
-                        var p = _l[_k];
-                        var player = new Player(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture);
-                        Game.gameObjects.push(player);
-                        console.log('Placed player with index: ', Game.gameObjects.indexOf(player));
-                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.x = p.x + 32;
-                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.y = p.y + 32;
+                        var e = _l[_k];
+                        var stage = Game.PIXI.stage;
+                        var texture = PIXI.loader.resources['./images/sprites/powerup_speed.png'].texture;
+                        var item = new PowerupItem('PowerupSpeed', stage, texture);
+                        item = new SpeedPowerupEffect(item, stage, texture);
+                        Game.gameObjects.push(item);
+                        console.log('Placed PowerupSpeed with index: ', Game.gameObjects.indexOf(item));
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32;
                     }
                     for (var _m = 0, _o = layer.children; _m < _o.length; _m++) {
-                        var p = _o[_m];
-                        p.visible = false;
+                        var e = _o[_m];
+                        e.visible = false;
                     }
                     break;
-                case 'EnemiesStationary':
+                case 'PowerupSpeedAndHealth':
                     for (var _p = 0, _q = layer.children; _p < _q.length; _p++) {
                         var e = _q[_p];
-                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'stationary');
-                        Game.gameObjects.push(enemy);
-                        console.log('Placed EnemiesStationary with index: ', Game.gameObjects.indexOf(enemy));
-                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
-                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                        var stage = Game.PIXI.stage;
+                        var texture = PIXI.loader.resources['./images/sprites/powerup_health.png'].texture;
+                        var item = new PowerupItem('PowerupSpeedAndHealth', stage, texture);
+                        item = new SpeedPowerupEffect(item, stage, texture);
+                        item = new HealthPowerupEffect(item, stage, texture);
+                        Game.gameObjects.push(item);
+                        console.log('Placed PowerupSpeed with index: ', Game.gameObjects.indexOf(item));
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(item)].sprite.y = e.y + 32;
                     }
                     for (var _r = 0, _s = layer.children; _r < _s.length; _r++) {
                         var e = _s[_r];
                         e.visible = false;
                     }
                     break;
-                case 'EnemiesHorizontal':
+                case 'Player':
                     for (var _t = 0, _u = layer.children; _t < _u.length; _t++) {
-                        var e = _u[_t];
-                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'horizontal');
-                        Game.gameObjects.push(enemy);
-                        console.log('Placed EnemiesHorizontal with index: ', Game.gameObjects.indexOf(enemy));
-                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
-                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                        var p = _u[_t];
+                        var player = new Player(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/player.png'].texture);
+                        Game.gameObjects.push(player);
+                        console.log('Placed player with index: ', Game.gameObjects.indexOf(player));
+                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.x = p.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(player)].sprite.y = p.y + 32;
                     }
                     for (var _v = 0, _w = layer.children; _v < _w.length; _v++) {
-                        var e = _w[_v];
-                        e.visible = false;
+                        var p = _w[_v];
+                        p.visible = false;
                     }
                     break;
-                case 'EnemiesVertical':
+                case 'EnemiesStationary':
                     for (var _x = 0, _y = layer.children; _x < _y.length; _x++) {
                         var e = _y[_x];
-                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'vertical');
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'stationary');
                         Game.gameObjects.push(enemy);
-                        console.log('Placed enemy with index: ', Game.gameObjects.indexOf(enemy));
+                        console.log('Placed EnemiesStationary with index: ', Game.gameObjects.indexOf(enemy));
                         Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
                         Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
                     }
@@ -1176,9 +1248,37 @@ var MapLoader = (function () {
                         e.visible = false;
                     }
                     break;
-                case 'Walls':
+                case 'EnemiesHorizontal':
                     for (var _1 = 0, _2 = layer.children; _1 < _2.length; _1++) {
-                        var w = _2[_1];
+                        var e = _2[_1];
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'horizontal');
+                        Game.gameObjects.push(enemy);
+                        console.log('Placed EnemiesHorizontal with index: ', Game.gameObjects.indexOf(enemy));
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                    }
+                    for (var _3 = 0, _4 = layer.children; _3 < _4.length; _3++) {
+                        var e = _4[_3];
+                        e.visible = false;
+                    }
+                    break;
+                case 'EnemiesVertical':
+                    for (var _5 = 0, _6 = layer.children; _5 < _6.length; _5++) {
+                        var e = _6[_5];
+                        var enemy = new EnemySoldier(Game.PIXI.stage, PIXI.loader.resources['./images/sprites/soldier.png'].texture, 'vertical');
+                        Game.gameObjects.push(enemy);
+                        console.log('Placed enemy with index: ', Game.gameObjects.indexOf(enemy));
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.x = e.x + 32;
+                        Game.gameObjects[Game.gameObjects.indexOf(enemy)].sprite.y = e.y + 32;
+                    }
+                    for (var _7 = 0, _8 = layer.children; _7 < _8.length; _7++) {
+                        var e = _8[_7];
+                        e.visible = false;
+                    }
+                    break;
+                case 'Walls':
+                    for (var _9 = 0, _10 = layer.children; _9 < _10.length; _9++) {
+                        var w = _10[_9];
                         Game.walls.push(w);
                     }
                     break;
@@ -1553,10 +1653,8 @@ var GunFactory = (function () {
         switch (type.toUpperCase()) {
             case 'PISTOL':
                 return new Pistol(subject);
-                break;
             case 'MACHINEGUN':
                 return new MachineGun(subject);
-                break;
             default:
                 return new Unarmed(subject);
         }
